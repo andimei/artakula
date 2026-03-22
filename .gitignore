@@ -1,0 +1,85 @@
+# =========================
+# Flutter / Dart / Pub
+# =========================
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# =========================
+# IDE
+# =========================
+.idea/
+*.iml
+.vscode/
+
+# =========================
+# Android
+# =========================
+android/.gradle/
+android/local.properties
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# Keystore (penting jangan sampai ke-push!)
+android/key.properties
+*.jks
+*.keystore
+
+# =========================
+# iOS
+# =========================
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+
+ios/Pods/
+ios/.symlinks/
+ios/Runner.xcworkspace/
+
+# =========================
+# macOS
+# =========================
+macos/Flutter/ephemeral/
+macos/Pods/
+
+# =========================
+# Linux
+# =========================
+linux/flutter/ephemeral/
+
+# =========================
+# Windows
+# =========================
+windows/flutter/ephemeral/
+
+# =========================
+# Web
+# =========================
+build/web/
+
+# =========================
+# Misc
+# =========================
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# =========================
+# Firebase / Config (optional)
+# =========================
+google-services.json
+GoogleService-Info.plist
+
+# =========================
+# Env / Secret
+# =========================
+.env
