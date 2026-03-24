@@ -71,13 +71,13 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
               onChanged: (val) {
                 setState(() {
                   _type = val!;
-                  _categoryId = null; // 🔥 reset biar gak mismatch
+                  _categoryId = null; // reset biar gak mismatch
                 });
               },
               decoration: const InputDecoration(labelText: 'Type'),
             ),
 
-            /// CATEGORY 🔥
+            /// CATEGORY
             if (_type != TransactionType.transfer)
               Consumer(
                 builder: (context, ref, _) {
