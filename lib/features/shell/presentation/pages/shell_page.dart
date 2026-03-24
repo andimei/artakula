@@ -1,10 +1,12 @@
 import 'package:artakula/features/accounts/presentation/pages/account_page.dart';
+import 'package:artakula/features/shell/presentation/pages/more_page.dart';
 import 'package:flutter/material.dart';
-import '../../../../shared/widgets/empty_tab.dart';
+// import '../../../../shared/widgets/empty_tab.dart';
 import '../models/tab_data.dart';
-import '../../../expenses/presentation/pages/expenses_page.dart';
+// import '../../../expenses/presentation/pages/expenses_page.dart';
 import '../widgets/app_drawer.dart';
 import '../../../../features/expenses/presentation/pages/expense_form_page.dart';
+import '../../../../features/transactions/presentation/pages/transaction_page.dart';
 
 class ShellPage extends StatefulWidget {
   // final ThemeMode themeMode;
@@ -20,10 +22,12 @@ class _ShellPageState extends State<ShellPage> {
   int _currentIndex = 0;
 
   final _tabs = const [
+    TabData('Transactions', Icons.receipt_long),
     TabData('Accounts', Icons.account_balance_wallet),
-    TabData('Expenses', Icons.receipt_long),
-    TabData('Incomes', Icons.trending_up),
-    TabData('Transfers', Icons.swap_horiz),
+    TabData('More', Icons.more_horiz),
+    // TabData('Expenses', Icons.receipt_long),
+    // TabData('Incomes', Icons.trending_up),
+    // TabData('Transfers', Icons.swap_horiz),
   ];
 
   @override
@@ -37,10 +41,12 @@ class _ShellPageState extends State<ShellPage> {
       body: IndexedStack(
         index: _currentIndex,
         children: const [
+          TransactionsPage(),
           AccountsPage(),
-          ExpensesPage(),
-          EmptyTab(title: 'Incomes'),
-          EmptyTab(title: 'Transfers'),
+          MorePage(),
+          // ExpensesPage(),
+          // EmptyTab(title: 'Incomes'),
+          // EmptyTab(title: 'Transfers'),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
