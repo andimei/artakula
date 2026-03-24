@@ -23,6 +23,7 @@
 - [x] Filter (Today / Month)
 
 ### 🔥 Todo
+- [ ] Tampilkan warning jika category tidak ada
 - [ ] Tampilkan category di transaction tile  
 - [ ] Sorting berdasarkan tanggal terbaru  
 - [ ] Group by tanggal 🔥  
@@ -49,6 +50,7 @@
 - [x] Integrasi ke TransactionForm
 
 ### 🔥 Todo
+- [ ] Perbaiki bug category
 - [ ] Sorting category (income & expense dipisah)  
 - [ ] Tambahkan icon category  
 - [ ] Default category (makan, transport, dll)  
