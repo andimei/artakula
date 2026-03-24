@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/transaction.dart';
+import '../../../categories/providers/category_provider.dart';
+import '../../../categories/data/models/category.dart';
 
-class TransactionTile extends StatelessWidget {
+class TransactionTile extends ConsumerWidget {
   final Transaction transaction;
   final VoidCallback? onTap;
 
@@ -12,10 +15,24 @@ class TransactionTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isIncome = transaction.type == TransactionType.income;
     final isExpense = transaction.type == TransactionType.expense;
     final isTransfer = transaction.type == TransactionType.transfer;
+
+    final categories = ref.watch(categoryProvider);
+
+    Category? category;
+
+    if (transaction.categoryId != null) {
+      try {
+        category = categories.firstWhere(
+          (c) => c.id == transaction.categoryId,
+        );
+      } catch (_) {
+        category = null;
+      }
+    }
 
     final color = isIncome
         ? Colors.green
@@ -29,14 +46,10 @@ class TransactionTile extends StatelessWidget {
         ? '-'
         : '';
 
-    final title = isTransfer
-        ? 'Transfer'
-        : transaction.note.isNotEmpty
-        ? transaction.note
-        : transaction.categoryId ?? 'Transaction';
+    final title = isTransfer ? 'Transfer' : category?.name ?? 'Transaction';
 
     final subtitle = isTransfer
-        ? '${transaction.fromAccountId} → ${transaction.toAccountId}'
+        ? '${transaction.fromAccountId} to ${transaction.toAccountId}'
         : transaction.fromAccountId;
 
     return InkWell(
