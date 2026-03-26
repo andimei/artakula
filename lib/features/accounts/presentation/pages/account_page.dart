@@ -1,9 +1,7 @@
-// import 'package:artakula/features/accounts/presentation/widgets/account_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controller/account_provider.dart';
 import '../widgets/account_header.dart';
-// import '../widgets/account_form.dart';
 import '../widgets/account_tile.dart';
 import 'package:artakula/features/accounts/presentation/pages/account_form_page.dart';
 
@@ -54,7 +52,7 @@ class AccountsPage extends ConsumerWidget {
               : ListView.separated(
                   padding: const EdgeInsets.all(12),
                   itemCount: accounts.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final account = accounts[index];
                     return AccountTile(
