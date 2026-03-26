@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/account_hive_service.dart';
 import '../data/models/account.dart';
 
