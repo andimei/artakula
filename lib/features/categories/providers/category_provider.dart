@@ -1,44 +1,101 @@
+import 'package:artakula/features/categories/data/category_hive_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-
+import 'package:uuid/uuid.dart';
 import '../data/models/category.dart';
 
 final categoryProvider =
-    StateNotifierProvider<CategoryNotifier, List<Category>>((ref) {
-      return CategoryNotifier();
-    });
+    StateNotifierProvider<CategoryNotifier, List<Category>>(
+      (ref) => CategoryNotifier(),
+    );
 
 class CategoryNotifier extends StateNotifier<List<Category>> {
-  late Box<Category> _box;
-
   CategoryNotifier() : super([]) {
-    final box = Hive.box<Category>('categories');
-    _box = box;
-    state = box.values.toList();
+    _init();
   }
 
-  /// Add
+  final _service = CategoryHiveService();
+
+  Future<void> _init() async {
+    await ensureSystemCategories();
+    _load();
+  }
+
+  void _load() {
+    state = _service.getAll();
+  }
+
   Future<void> add(Category category) async {
-    await _box.put(category.id, category);
-    state = [..._box.values];
+    await _service.add(category);
+    _load();
   }
 
-  /// Update
   Future<void> update(Category category) async {
-    await category.save();
-    state = [..._box.values];
+    await _service.update(category);
+    _load();
   }
 
-  /// Delete
   Future<void> delete(Category category) async {
-    await category.delete();
-    state = [..._box.values];
+    if (category.isSystem) return; // protect system category
+    await _service.delete(category);
+    _load();
   }
 
-  /// Refresh (optional)
-  void refresh() {
-    state = [..._box.values];
+  /// SYSTEM CATEGORY CREATOR
+  Future<void> ensureSystemCategories() async {
+    final categories = _service.getAll();
+
+    final existingKeys = categories.map((c) => c.systemKey).toSet();
+
+    final List<Category> systemCategories = [];
+
+    if (!existingKeys.contains(SystemCategory.initialBalance)) {
+      systemCategories.add(
+        Category(
+          id: const Uuid().v4(),
+          name: "Initial Balance",
+          isIncome: true,
+          isSystem: true,
+          systemKey: SystemCategory.initialBalance,
+        ),
+      );
+    }
+
+    if (!existingKeys.contains(SystemCategory.adjustmentIncome)) {
+      systemCategories.add(
+        Category(
+          id: const Uuid().v4(),
+          name: "Adjustment",
+          isIncome: true,
+          isSystem: true,
+          systemKey: SystemCategory.adjustmentIncome,
+        ),
+      );
+    }
+
+    if (!existingKeys.contains(SystemCategory.adjustmentExpense)) {
+      systemCategories.add(
+        Category(
+          id: const Uuid().v4(),
+          name: "Adjustment",
+          isIncome: false,
+          isSystem: true,
+          systemKey: SystemCategory.adjustmentExpense,
+        ),
+      );
+    }
+
+    for (final category in systemCategories) {
+      await _service.add(category);
+    }
+
+    _load(); // refresh state
   }
+}
+
+class SystemCategory {
+  static const initialBalance = "initial_balance";
+  static const adjustmentIncome = "adjustment_income";
+  static const adjustmentExpense = "adjustment_expense";
 }
 
 final expenseCategoriesProvider = Provider<List<Category>>((ref) {

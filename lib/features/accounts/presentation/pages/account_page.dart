@@ -14,64 +14,63 @@ class AccountsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final accounts = ref.watch(accountProvider);
 
-    return Column(
-      children: [
-        Card(
-          color: const Color(0xFF2E1E1E),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadiusGeometry.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [],
+    return Scaffold(
+      appBar: AppBar(title: const Text('Accounts')),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AccountFormPage(),
             ),
-          ),
-        ),
-        // const Divider(height: 1),
-        AccountsHeader(
-          onAdd: () {
-            // open add account page / bottom sheet
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => AccountFormPage(),
-              ),
-            );
-          },
-          onFilter: () {
-            // open filter
-          },
-          onSettings: () {
-            // open settings
-          },
-        ),
+          );
+        },
+      ),
+      body: accounts.isEmpty
+          ? const Center(child: Text('No accounts yet'))
+          : ListView.separated(
+              padding: const EdgeInsets.all(12),
+              itemCount: accounts.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final account = accounts[index];
 
-        const Divider(height: 1),
-        Expanded(
-          child: accounts.isEmpty
-              ? const Center(child: Text('No accounts yet'))
-              : ListView.separated(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: accounts.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final account = accounts[index];
-                    return AccountTile(
-                      account: account,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => AccountFormPage(account: account),
-                          ),
-                        );
-                      },
-                    );
+                return Dismissible(
+                  key: ValueKey(account.id),
+                  direction: DismissDirection.endToStart,
+                  background: _deleteBackground(),
+                  onDismissed: (_) {
+                    ref.read(accountProvider.notifier).delete(account);
                   },
-                ),
-        ),
-      ],
+                  child: AccountTile(
+                    account: account,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AccountFormPage(
+                            account: account,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _deleteBackground() {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.red.shade800,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Icon(Icons.delete, color: Colors.white),
     );
   }
 }

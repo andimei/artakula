@@ -1,3 +1,4 @@
+import 'package:artakula/features/accounts/presentation/pages/account_page.dart';
 import 'package:flutter/material.dart';
 import '../../../categories/presentation/pages/category_page.dart';
 
@@ -8,6 +9,20 @@ class MorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
+        _menuItem(
+          context,
+          icon: Icons.wallet,
+          title: "Accounts",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const AccountsPage(),
+              ),
+            );
+          },
+        ),
+
         _menuItem(
           context,
           icon: Icons.category,
@@ -25,6 +40,7 @@ class MorePage extends StatelessWidget {
         // nanti bisa tambah:
         // Budget
         // Settings
+        // dll
       ],
     );
   }

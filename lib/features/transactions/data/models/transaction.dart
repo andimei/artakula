@@ -5,31 +5,31 @@ part 'transaction.g.dart';
 @HiveType(typeId: 10)
 class Transaction extends HiveObject {
   @HiveField(0)
-  final String id;
+   String id;
 
   @HiveField(1)
-  final int amount;
+   int amount;
 
   @HiveField(2)
-  final TransactionType type;
+   TransactionType type;
 
   @HiveField(3)
-  final DateTime date;
+   DateTime date;
 
   @HiveField(4)
-  final String note;
+   String note;
 
   @HiveField(5)
-  final String? categoryId;
+   String? categoryId;
 
   @HiveField(6)
-  final String fromAccountId;
+   String fromAccountId;
 
   @HiveField(7)
-  final String? toAccountId;
+   String? toAccountId;
 
   @HiveField(8)
-  final DateTime createdAt;
+   DateTime createdAt;
 
   Transaction({
     required this.id,

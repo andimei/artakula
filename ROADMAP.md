@@ -48,9 +48,8 @@
 ### ✅ Done
 - [x] Category CRUD
 - [x] Integrasi ke TransactionForm
-
+- [x] Perbaiki bug category
 ### 🔥 Todo
-- [ ] Perbaiki bug category
 - [ ] Sorting category (income & expense dipisah)  
 - [ ] Tambahkan icon category  
 - [ ] Default category (makan, transport, dll)  

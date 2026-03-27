@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
 import '../widgets/account_form.dart';
+import '../widgets/account_form_controller.dart';
 import '../../data/models/account.dart';
 
-class AccountFormPage extends StatelessWidget {
+class AccountFormPage extends StatefulWidget {
   final Account? account;
 
-  AccountFormPage({super.key, this.account});
+  const AccountFormPage({super.key, this.account});
 
-  final _formKey = GlobalKey<AccountFormState>();
+  @override
+  State<AccountFormPage> createState() => _AccountFormPageState();
+}
 
-  bool get isEdit => account != null;
+class _AccountFormPageState extends State<AccountFormPage> {
+  late final AccountFormController controller;
+
+  bool get isEdit => widget.account != null;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AccountFormController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +36,17 @@ class AccountFormPage extends StatelessWidget {
           if (isEdit)
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () => _formKey.currentState?.confirmDelete(),
+              onPressed: controller.delete,
             ),
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: () => _formKey.currentState?.submit(),
+            onPressed: controller.submit,
           ),
         ],
       ),
       body: AccountForm(
-        key: _formKey,
-        account: account,
+        account: widget.account,
+        controller: controller,
       ),
     );
   }

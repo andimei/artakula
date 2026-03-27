@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:artakula/features/shell/presentation/pages/shell_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/providers/theme_provider.dart';
-import 'core/hive/hive_adapters.dart';
+import 'core/bootstrap/app_bootstrap.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await registerHiveAdapters();
+  // await registerHiveAdapters();
 
   runApp(
     const ProviderScope(
@@ -20,13 +20,29 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bootstrap = ref.watch(appBootstrapProvider);
+
     final themeMode = ref.watch(themeProvider);
 
-    return MaterialApp(
-      themeMode: themeMode,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      home: const ShellPage(),
+    return bootstrap.when(
+      loading: () => const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      ),
+
+      error: (e, _) => MaterialApp(
+        home: Scaffold(
+          body: Center(child: Text('Error: $e')),
+        ),
+      ),
+
+      data: (_) => MaterialApp(
+        themeMode: themeMode,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        home: const ShellPage(),
+      ),
     );
   }
 }

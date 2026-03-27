@@ -1,44 +1,98 @@
+import 'package:artakula/features/transactions/data/transaction_hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 import '../data/models/transaction.dart';
 
-final transactionProvider =
-    StateNotifierProvider<TransactionNotifier, List<Transaction>>((ref) {
-      return TransactionNotifier();
-    });
+// final transactionProvider =
+//     StateNotifierProvider<TransactionNotifier, List<Transaction>>((ref) {
+//       return TransactionNotifier();
+//     });
+
+// class TransactionNotifier extends StateNotifier<List<Transaction>> {
+//   late Box<Transaction> _box;
+
+//   TransactionNotifier() : super([]) {
+//     _init();
+//   }
+
+//   void _init() {
+//     _box = Hive.box<Transaction>('transactions');
+//     state = _box.values.toList();
+//   }
+
+//   /// Add
+//   Future<void> add(Transaction tx) async {
+//     await _box.put(tx.id, tx);
+//     state = [...state, tx];
+//   }
+
+//   /// Update
+//   Future<void> update(Transaction tx) async {
+//     await tx.save();
+//     state = [..._box.values];
+//   }
+
+//   /// Delete
+//   Future<void> delete(Transaction tx) async {
+//     await tx.delete();
+//     state = [..._box.values];
+//   }
+
+//   /// Delete with undo
+//   void deleteWithUndo(BuildContext context, Transaction tx) {
+//     delete(tx);
+
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: const Text('Transaction deleted'),
+//         action: SnackBarAction(
+//           label: 'UNDO',
+//           onPressed: () {
+//             add(tx);
+//           },
+//         ),
+//       ),
+//     );
+//   }
+
+//   /// Refresh manual (optional)
+//   void refresh() {
+//     state = [..._box.values];
+//   }
+// }
+
+
+final transactionProvider = StateNotifierProvider<TransactionNotifier, List<Transaction>>(
+  (ref) => TransactionNotifier(),
+);
 
 class TransactionNotifier extends StateNotifier<List<Transaction>> {
-  late Box<Transaction> _box;
-
   TransactionNotifier() : super([]) {
-    _init();
+    _load();
   }
 
-  void _init() {
-    _box = Hive.box<Transaction>('transactions');
-    state = _box.values.toList();
+  final _service = TransactionHiveService();
+
+  void _load() {
+    state = _service.getAll();
   }
 
-  /// Add
-  Future<void> add(Transaction tx) async {
-    await _box.put(tx.id, tx);
-    state = [...state, tx];
+  Future<void> add(Transaction transaction) async {
+    await _service.add(transaction);
+    _load();
   }
 
-  /// Update
-  Future<void> update(Transaction tx) async {
-    await tx.save();
-    state = [..._box.values];
+  Future<void> update(Transaction transaction) async {
+    await _service.update(transaction);
+    _load();
   }
 
-  /// Delete
-  Future<void> delete(Transaction tx) async {
-    await tx.delete();
-    state = [..._box.values];
+  Future<void> delete(Transaction transaction) async {
+    await _service.delete(transaction);
+    _load();
   }
 
-  /// Delete with undo
+  // Delete with undo
   void deleteWithUndo(BuildContext context, Transaction tx) {
     delete(tx);
 
@@ -55,11 +109,8 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
     );
   }
 
-  /// Refresh manual (optional)
-  void refresh() {
-    state = [..._box.values];
-  }
 }
+
 
 final totalIncomeProvider = Provider<int>((ref) {
   final txs = ref.watch(transactionProvider);

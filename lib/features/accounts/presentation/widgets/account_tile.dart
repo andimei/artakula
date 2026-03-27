@@ -60,7 +60,7 @@ class AccountTile extends StatelessWidget {
               ),
             ),
             Text(
-              rupiah.format(account.balance),
+              rupiah.format(account.initialBalance),
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

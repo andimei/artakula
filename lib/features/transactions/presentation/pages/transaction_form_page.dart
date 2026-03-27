@@ -40,7 +40,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       _type = tx.type;
       _fromAccount = tx.fromAccountId;
       _toAccount = tx.toAccountId;
-      _selectedDate = tx.date; // 🔥 ambil dari data lama
+      _selectedDate = tx.date; // ambil dari data lama
     } else {
       _selectedDate = DateTime.now(); // default hari ini
     }
@@ -84,9 +84,13 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   final categories = ref.watch(
                     categoriesByTypeProvider(_type == TransactionType.income),
                   );
-
+                  final validCategory = categories.any(
+                    (c) => c.id == _categoryId,
+                  ) ? _categoryId : null;
+                  
                   return DropdownButtonFormField<String>(
-                    initialValue: _categoryId,
+                    // initialValue: _categoryId,
+                    initialValue: validCategory,
                     items: categories.map((cat) {
                       return DropdownMenuItem(
                         value: cat.id,
@@ -101,7 +105,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
             const SizedBox(height: 12),
 
-            /// DATE PICKER 🔥
+            /// DATE PICKER 
             InkWell(
               onTap: _pickDate,
               child: InputDecorator(
@@ -169,7 +173,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     );
   }
 
-  /// 📅 PICK DATE
+  // PICK DATE
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -185,31 +189,41 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     }
   }
 
-  void _save() {
-    final amount = int.tryParse(_amountController.text) ?? 0;
+void _save() {
+  final amount = int.tryParse(_amountController.text) ?? 0;
+  final notifier = ref.read(transactionProvider.notifier);
 
+  if (widget.transaction == null) {
+    // ===== ADD =====
     final tx = Transaction(
-      id: widget.transaction?.id ?? const Uuid().v4(),
+      id: const Uuid().v4(),
       amount: amount,
       type: _type,
-      date: _selectedDate, // 🔥 pakai tanggal yang dipilih
+      date: _selectedDate,
       fromAccountId: _fromAccount,
       toAccountId: _type == TransactionType.transfer ? _toAccount : null,
       note: _noteController.text,
       categoryId: _type == TransactionType.transfer ? null : _categoryId,
     );
 
-    final notifier = ref.read(transactionProvider.notifier);
+    notifier.add(tx);
+  } else {
+    // ===== UPDATE =====
+    final tx = widget.transaction!;
 
-    if (widget.transaction == null) {
-      notifier.add(tx);
-    } else {
-      notifier.update(tx);
-    }
+    tx.amount = amount;
+    tx.type = _type;
+    tx.date = _selectedDate;
+    tx.fromAccountId = _fromAccount;
+    tx.toAccountId = _type == TransactionType.transfer ? _toAccount : null;
+    tx.note = _noteController.text;
+    tx.categoryId = _type == TransactionType.transfer ? null : _categoryId;
 
-    Navigator.pop(context);
+    notifier.update(tx);
   }
 
+  Navigator.pop(context);
+}
   String _formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }

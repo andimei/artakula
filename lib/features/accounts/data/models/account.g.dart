@@ -19,7 +19,7 @@ class AccountAdapter extends TypeAdapter<Account> {
     return Account(
       id: fields[0] as String,
       name: fields[1] as String,
-      balance: fields[2] as int,
+      initialBalance: fields[2] as int,
     );
   }
 
@@ -32,7 +32,7 @@ class AccountAdapter extends TypeAdapter<Account> {
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.balance);
+      ..write(obj.initialBalance);
   }
 
   @override

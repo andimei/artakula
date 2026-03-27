@@ -23,7 +23,7 @@ class _ShellPageState extends State<ShellPage> {
 
   final _tabs = const [
     TabData('Transactions', Icons.receipt_long),
-    TabData('Accounts', Icons.account_balance_wallet),
+    // TabData('Accounts', Icons.account_balance_wallet),
     TabData('More', Icons.more_horiz),
     // TabData('Expenses', Icons.receipt_long),
     // TabData('Incomes', Icons.trending_up),
@@ -42,7 +42,7 @@ class _ShellPageState extends State<ShellPage> {
         index: _currentIndex,
         children: const [
           TransactionsPage(),
-          AccountsPage(),
+          // AccountsPage(),
           MorePage(),
           // ExpensesPage(),
           // EmptyTab(title: 'Incomes'),

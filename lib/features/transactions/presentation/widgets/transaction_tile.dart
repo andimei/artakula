@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/transaction.dart';
 import '../../../categories/providers/category_provider.dart';
 import '../../../categories/data/models/category.dart';
+import 'package:collection/collection.dart';
 
 class TransactionTile extends ConsumerWidget {
   final Transaction transaction;
@@ -25,12 +26,10 @@ class TransactionTile extends ConsumerWidget {
     Category? category;
 
     if (transaction.categoryId != null) {
-      try {
-        category = categories.firstWhere(
+      if (transaction.categoryId != null) {
+        category = categories.firstWhereOrNull(
           (c) => c.id == transaction.categoryId,
         );
-      } catch (_) {
-        category = null;
       }
     }
 

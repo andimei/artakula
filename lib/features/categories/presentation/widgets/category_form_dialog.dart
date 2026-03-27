@@ -51,6 +51,14 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
         ],
       ),
       actions: [
+        if (isEdit)
+    TextButton(
+      onPressed: _delete,
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.red,
+      ),
+      child: const Text('Delete'),
+    ),
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
@@ -63,24 +71,41 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
     );
   }
 
-  void _save() {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) return;
+void _save() {
+  final name = _nameController.text.trim();
+  if (name.isEmpty) return;
 
+  final notifier = ref.read(categoryProvider.notifier);
+
+  if (widget.category == null) {
+    // ADD
     final category = Category(
-      id: widget.category?.id ?? const Uuid().v4(),
+      id: const Uuid().v4(),
       name: name,
       isIncome: _isIncome,
     );
 
-    final notifier = ref.read(categoryProvider.notifier);
+    notifier.add(category);
+  } else {
+    // UPDATE
+    final category = widget.category!;
 
-    if (widget.category == null) {
-      notifier.add(category);
-    } else {
-      notifier.update(category);
-    }
+    category.name = name;
+    category.isIncome = _isIncome;
 
-    Navigator.pop(context);
+    notifier.update(category);
   }
+
+  Navigator.pop(context);
+}
+
+  void _delete() {
+  final category = widget.category;
+  if (category == null) return;
+
+  final notifier = ref.read(categoryProvider.notifier);
+  notifier.delete(category);
+
+  Navigator.pop(context);
+}
 }

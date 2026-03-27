@@ -11,11 +11,11 @@ class Account extends HiveObject {
   String name;
 
   @HiveField(2)
-  int balance;
+  int initialBalance;
 
   Account({
     required this.id,
     required this.name,
-    this.balance = 0,
+    this.initialBalance = 0,
   });
 }

@@ -1,146 +1,218 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/models/account.dart';
 import '../../controller/account_provider.dart';
 
-// import 'package:flutter/material.dart';
-// import '../../data/models/account.dart';
-
-// import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:uuid/uuid.dart';
-
-// import '../../data/models/account.dart';
-// import '../../controller/account_provider.dart';
+import 'account_form_controller.dart';
 
 class AccountForm extends ConsumerStatefulWidget {
   final Account? account;
+  final AccountFormController controller;
 
   const AccountForm({
     super.key,
     this.account,
+    required this.controller,
   });
 
   @override
-  ConsumerState<AccountForm> createState() => AccountFormState();
+  ConsumerState<AccountForm> createState() => _AccountFormState();
 }
 
-class AccountFormState extends ConsumerState<AccountForm> {
-  final _formKey = GlobalKey<FormState>();
-
-  late final TextEditingController _nameCtrl;
-  late final TextEditingController _balanceCtrl;
-
+class _AccountFormState extends ConsumerState<AccountForm> {
+  final _nameController = TextEditingController();
+  final _balanceController = TextEditingController();
+  final _currencyFormat = NumberFormat.decimalPattern('id_ID');
   bool get isEdit => widget.account != null;
 
   @override
   void initState() {
     super.initState();
-    _nameCtrl = TextEditingController(text: widget.account?.name ?? '');
-    _balanceCtrl = TextEditingController(
-      text: widget.account?.balance.toString() ?? '',
+
+    final acc = widget.account;
+    if (acc != null) {
+      _nameController.text = acc.name;
+      _balanceController.text = _currencyFormat.format(acc.initialBalance);
+    }
+    _balanceController.addListener(_formatBalance);
+
+    widget.controller.bind(
+      onSubmit: _submit,
+      onDelete: _confirmDelete,
     );
   }
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
-    _balanceCtrl.dispose();
+    _nameController.dispose();
+    _balanceController.dispose();
     super.dispose();
-  }
-
-  // dipanggil dari AppBar
-  void submit() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final balance = int.parse(_balanceCtrl.text);
-
-    if (isEdit) {
-      widget.account!
-        ..name = _nameCtrl.text
-        ..balance = balance
-        ..save();
-    } else {
-      ref
-          .read(accountProvider.notifier)
-          .add(
-            Account(
-              id: const Uuid().v4(),
-              name: _nameCtrl.text,
-              balance: balance,
-            ),
-          );
-    }
-
-    Navigator.pop(context);
-  }
-
-  // dipanggil dari AppBar
-  void delete() {
-    if (!isEdit) return;
-    ref.read(accountProvider.notifier).delete(widget.account!);
-    Navigator.pop(context);
-  }
-
-  Future<void> confirmDelete() async {
-    if (!isEdit) return;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete account?'),
-        content: const Text(
-          'This action cannot be undone. '
-          'All related records will be permanently removed.',
-        ),
-        actions: [
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      delete();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      body: SafeArea(
         child: Column(
           children: [
-            TextFormField(
-              controller: _nameCtrl,
-              decoration: const InputDecoration(labelText: 'Account name'),
-              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+            /// FORM
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  /// ACCOUNT
+                  const Text(
+                    "ACCOUNT",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        hintText: "Cash, Bank, etc",
+                        filled: true,
+                        fillColor: Colors.grey.shade300,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  /// INITIAL BALANCE (ONLY CREATE MODE)
+                  if (!isEdit) ...[
+                    const Text(
+                      "INITIAL BALANCE",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    TextField(
+                      controller: _balanceController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: "0",
+                        filled: true,
+                        fillColor: Colors.grey.shade300,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _balanceCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Initial balance'),
-              validator: (v) => v == null || int.tryParse(v) == null
-                  ? 'Invalid number'
-                  : null,
+
+            /// BUTTON SIMPAN
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: EdgeInsets.zero,
+                  ),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF2C5F73),
+                          Color(0xFF3FA2D6),
+                        ],
+                      ),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "SAVE",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _submit() {
+    final notifier = ref.read(accountProvider.notifier);
+
+    if (!isEdit) {
+      notifier.add(
+        Account(
+          id: const Uuid().v4(),
+          name: _nameController.text,
+          initialBalance: int.parse(
+            _balanceController.text.replaceAll('.', ''),
+          ),
+        ),
+      );
+    } else {
+      final acc = widget.account!;
+      acc.name = _nameController.text;
+
+      /// JANGAN EDIT INITIAL BALANCE
+      notifier.update(acc);
+    }
+
+    Navigator.pop(context);
+  }
+
+  void _confirmDelete() {
+    final acc = widget.account;
+    if (acc == null) return;
+
+    ref.read(accountProvider.notifier).delete(acc);
+    Navigator.pop(context);
+  }
+
+  void _formatBalance() {
+    String text = _balanceController.text;
+
+    /// ambil angka saja
+    text = text.replaceAll('.', '');
+
+    if (text.isEmpty) return;
+
+    final number = int.parse(text);
+
+    final newText = _currencyFormat.format(number);
+
+    _balanceController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(
+        offset: newText.length,
       ),
     );
   }
