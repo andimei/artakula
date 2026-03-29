@@ -1,8 +1,9 @@
 // import 'package:artakula/features/accounts/presentation/widgets/account_tile.dart';
+import 'package:artakula/features/accounts/presentation/widgets/account_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controller/account_provider.dart';
-import '../widgets/account_header.dart';
+// import '../widgets/account_header.dart';
 // import '../widgets/account_form.dart';
 import '../widgets/account_tile.dart';
 import 'package:artakula/features/accounts/presentation/pages/account_form_page.dart';
@@ -17,6 +18,7 @@ class AccountsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Accounts')),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
@@ -29,35 +31,48 @@ class AccountsPage extends ConsumerWidget {
       ),
       body: accounts.isEmpty
           ? const Center(child: Text('No accounts yet'))
-          : ListView.separated(
-              padding: const EdgeInsets.all(12),
-              itemCount: accounts.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final account = accounts[index];
+          : Column(
+              children: [
+                Container(
+                  // padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 2,
+                  ),
+                  child: const AccountHeader(),
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: accounts.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 3),
+                    itemBuilder: (context, index) {
+                      final account = accounts[index];
 
-                return Dismissible(
-                  key: ValueKey(account.id),
-                  direction: DismissDirection.endToStart,
-                  background: _deleteBackground(),
-                  onDismissed: (_) {
-                    ref.read(accountProvider.notifier).delete(account);
-                  },
-                  child: AccountTile(
-                    account: account,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AccountFormPage(
-                            account: account,
-                          ),
+                      return Dismissible(
+                        key: ValueKey(account.id),
+                        direction: DismissDirection.endToStart,
+                        background: _deleteBackground(),
+                        onDismissed: (_) {
+                          ref.read(accountProvider.notifier).delete(account);
+                        },
+                        child: AccountTile(
+                          account: account,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    AccountFormPage(account: account),
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
                   ),
-                );
-              },
+                ),
+              ],
             ),
     );
   }

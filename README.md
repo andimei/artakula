@@ -41,20 +41,21 @@ Banyak aplikasi keuangan saat ini:
 
 ### Manajemen Transaksi
 
-* [ ] Tambah transaksi
-* [ ] Edit transaksi
-* [ ] Hapus transaksi
-* [ ] Melihat daftar transaksi
+* [x] Tambah transaksi
+* [x] Edit transaksi
+* [x] Hapus transaksi
+* [x] Melihat daftar transaksi
 
 ### Manajemen Account / Rekening
 
-* [ ] Tambah rekening
-* [ ] Edit rekening
-* [ ] Hapus rekening
+* [x] Tambah rekening
+* [x] Edit nama rekening 
+* [ ] Hapus rekening, otomatis hapus seluruh relasi
 * [ ] Melihat saldo rekening
 
 ### Manajemen Kategori
 
+* [ ] System Kategori "Initial Balance"
 * [ ] Tambah kategori
 * [ ] Edit kategori
 * [ ] Hapus kategori

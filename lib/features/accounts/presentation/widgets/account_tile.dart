@@ -1,8 +1,10 @@
+import 'package:artakula/features/transactions/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/account.dart';
 import 'package:intl/intl.dart';
 
-class AccountTile extends StatelessWidget {
+class AccountTile extends ConsumerWidget {
   final Account account;
   final VoidCallback? onTap;
 
@@ -13,59 +15,56 @@ class AccountTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final balance = ref.watch(accountBalanceProvider(account.id));
+
     final rupiah = NumberFormat.currency(
       locale: 'id_ID',
-      symbol: 'Rp',
-      decimalDigits: 2,
+      symbol: '',
+      decimalDigits: 0,
     );
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(0x80),
-              blurRadius: 6,
+          border: Border(
+            bottom: BorderSide(
+              color: Color(0xFFE0E0E0),
             ),
-          ],
+          ),
         ),
         child: Row(
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    account.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  // const SizedBox(height: 4),
-                  // Text(
-                  //   '${account.balance}',
-                  //   style: TextStyle(
-                  //     fontSize: 13,
-                  //     color: Colors.grey.shade600,
-                  //   ),
-                  // ),
-                ],
+              child: Text(
+                account.name,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
+
             Text(
-              rupiah.format(account.initialBalance),
+              rupiah.format(balance),
               style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
               ),
+            ),
+
+            const SizedBox(width: 6),
+
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: Colors.grey,
             ),
           ],
         ),

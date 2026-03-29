@@ -1,9 +1,12 @@
+import 'package:artakula/features/categories/providers/category_provider.dart';
+import 'package:artakula/features/transactions/data/models/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/models/account.dart';
 import '../../controller/account_provider.dart';
+import '../../../transactions/providers/transaction_provider.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'account_form_controller.dart';
@@ -166,24 +169,49 @@ class _AccountFormState extends ConsumerState<AccountForm> {
   }
 
   void _submit() {
-    final notifier = ref.read(accountProvider.notifier);
+    final accountNotifier = ref.read(accountProvider.notifier);
+    final transactionNotifier = ref.read(transactionProvider.notifier);
+
+    final balance =
+        int.tryParse(
+          _balanceController.text.replaceAll('.', ''),
+        ) ??
+        0;
 
     if (!isEdit) {
-      notifier.add(
-        Account(
-          id: const Uuid().v4(),
-          name: _nameController.text,
-          initialBalance: int.parse(
-            _balanceController.text.replaceAll('.', ''),
-          ),
-        ),
+      final accountId = const Uuid().v4();
+
+      final account = Account(
+        id: accountId,
+        name: _nameController.text,
+        // initialBalance: balance, // gak perlu initial balance
       );
+
+      accountNotifier.add(account);
+
+      /// AUTO CREATE INITIAL BALANCE TRANSACTION
+      if (balance > 0) {
+        final initialCategory = ref
+            .read(categoryProvider)
+            .firstWhere(
+              (c) => c.systemKey == SystemCategory.initialBalance,
+            );
+
+        transactionNotifier.add(
+          Transaction(
+            id: const Uuid().v4(),
+            type: TransactionType.income,
+            fromAccountId: accountId,
+            categoryId: initialCategory.id,
+            amount: balance,
+            date: DateTime.now(),
+          ),
+        );
+      }
     } else {
       final acc = widget.account!;
       acc.name = _nameController.text;
-
-      /// JANGAN EDIT INITIAL BALANCE
-      notifier.update(acc);
+      accountNotifier.update(acc);
     }
 
     Navigator.pop(context);

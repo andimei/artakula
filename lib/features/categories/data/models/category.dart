@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'category.g.dart';
@@ -19,11 +20,21 @@ class Category extends HiveObject {
   @HiveField(4)
   String? systemKey;
 
+  @HiveField(5)
+  int? iconCodePoint;
+
   Category({
     required this.id,
     required this.name,
     required this.isIncome,
     this.isSystem = false,
     this.systemKey,
+    this.iconCodePoint,
   });
+
+  IconData get icon => IconData(
+    // iconCodePoint ?? 0xe574, // default icon
+    iconCodePoint ?? Icons.category.codePoint,
+    fontFamily: 'MaterialIcons',
+  );
 }

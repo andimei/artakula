@@ -1,4 +1,4 @@
-import 'package:artakula/features/accounts/presentation/pages/account_page.dart';
+// import 'package:artakula/features/accounts/presentation/pages/account_page.dart';
 import 'package:artakula/features/shell/presentation/pages/more_page.dart';
 import 'package:flutter/material.dart';
 // import '../../../../shared/widgets/empty_tab.dart';
@@ -64,6 +64,7 @@ class _ShellPageState extends State<ShellPage> {
       ),
       floatingActionButton: _currentIndex == 1
           ? FloatingActionButton(
+              heroTag: null,
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(

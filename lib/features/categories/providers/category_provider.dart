@@ -1,24 +1,38 @@
 import 'package:artakula/features/categories/data/category_hive_service.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../data/models/category.dart';
 
+// final categoryProvider =
+//     StateNotifierProvider<CategoryNotifier, List<Category>>(
+//       (ref) => CategoryNotifier(),
+//     );
+
+final categoryServiceProvider = Provider<CategoryHiveService>((ref) {
+  return CategoryHiveService();
+});
+
 final categoryProvider =
     StateNotifierProvider<CategoryNotifier, List<Category>>(
-      (ref) => CategoryNotifier(),
+      (ref) => CategoryNotifier(
+        ref.read(categoryServiceProvider),
+      ),
     );
 
 class CategoryNotifier extends StateNotifier<List<Category>> {
-  CategoryNotifier() : super([]) {
-    _init();
-  }
-
-  final _service = CategoryHiveService();
-
-  Future<void> _init() async {
-    await ensureSystemCategories();
+  CategoryNotifier(this._service) : super([]) {
     _load();
   }
+
+  final CategoryHiveService _service;
+
+  // class CategoryNotifier extends StateNotifier<List<Category>> {
+  //   CategoryNotifier() : super([]) {
+  //     _load();
+  //   }
+
+  // final _service = CategoryHiveService();
 
   void _load() {
     state = _service.getAll();
@@ -44,74 +58,58 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
   Future<void> ensureSystemCategories() async {
     final categories = _service.getAll();
 
-    final existingKeys = categories.map((c) => c.systemKey).toSet();
+    final exists = categories.any(
+      (c) => c.systemKey == SystemCategory.initialBalance,
+    );
 
-    final List<Category> systemCategories = [];
+    if (exists) return;
 
-    if (!existingKeys.contains(SystemCategory.initialBalance)) {
-      systemCategories.add(
-        Category(
-          id: const Uuid().v4(),
-          name: "Initial Balance",
-          isIncome: true,
-          isSystem: true,
-          systemKey: SystemCategory.initialBalance,
-        ),
-      );
-    }
+    await _service.add(
+      Category(
+        id: const Uuid().v4(),
+        name: "Initial Balance",
+        isIncome: true,
+        isSystem: true,
+        systemKey: SystemCategory.initialBalance,
+        iconCodePoint: Icons.money_rounded.codePoint,
+      ),
+    );
 
-    if (!existingKeys.contains(SystemCategory.adjustmentIncome)) {
-      systemCategories.add(
-        Category(
-          id: const Uuid().v4(),
-          name: "Adjustment",
-          isIncome: true,
-          isSystem: true,
-          systemKey: SystemCategory.adjustmentIncome,
-        ),
-      );
-    }
-
-    if (!existingKeys.contains(SystemCategory.adjustmentExpense)) {
-      systemCategories.add(
-        Category(
-          id: const Uuid().v4(),
-          name: "Adjustment",
-          isIncome: false,
-          isSystem: true,
-          systemKey: SystemCategory.adjustmentExpense,
-        ),
-      );
-    }
-
-    for (final category in systemCategories) {
-      await _service.add(category);
-    }
-
-    _load(); // refresh state
+    _load();
   }
 }
 
 class SystemCategory {
   static const initialBalance = "initial_balance";
-  static const adjustmentIncome = "adjustment_income";
-  static const adjustmentExpense = "adjustment_expense";
 }
 
 final expenseCategoriesProvider = Provider<List<Category>>((ref) {
   final categories = ref.watch(categoryProvider);
-  return categories.where((c) => !c.isIncome).toList();
+  return categories.where((c) => !c.isIncome && !c.isSystem).toList();
 });
 
 final incomeCategoriesProvider = Provider<List<Category>>((ref) {
   final categories = ref.watch(categoryProvider);
-  return categories.where((c) => c.isIncome).toList();
+  return categories.where((c) => c.isIncome && !c.isSystem).toList();
 });
+
+// final categoriesByTypeProvider = Provider.family<List<Category>, bool>((
+//   ref,
+//   isIncome,
+// ) {
+//   final categories = ref.watch(categoryProvider);
+//   return categories.where((c) => c.isIncome == isIncome).toList();
+// });
 
 final categoriesByTypeProvider = Provider.family<List<Category>, bool>((
   ref,
   isIncome,
 ) {
   final categories = ref.watch(categoryProvider);
-  return categories.where((c) => c.isIncome == isIncome).toList();
+
+  return categories
+      .where(
+        (c) => c.isIncome == isIncome && !c.isSystem,
+      )
+      .toList();
 });

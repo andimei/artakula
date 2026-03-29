@@ -1,3 +1,4 @@
+import 'package:artakula/features/accounts/controller/account_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -21,9 +22,12 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
   final _noteController = TextEditingController();
 
   TransactionType _type = TransactionType.expense;
-  String _fromAccount = 'cash';
-  String? _toAccount;
+  // String _fromAccount = 'cash';
+  // String? _toAccount;
+
   String? _categoryId;
+  String? _fromAccountId;
+  String? _toAccountId;
 
   late DateTime _selectedDate;
 
@@ -38,8 +42,8 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       _amountController.text = tx.amount.toString();
       _noteController.text = tx.note;
       _type = tx.type;
-      _fromAccount = tx.fromAccountId;
-      _toAccount = tx.toAccountId;
+      _fromAccountId = tx.fromAccountId;
+      _toAccountId = tx.toAccountId;
       _selectedDate = tx.date; // ambil dari data lama
     } else {
       _selectedDate = DateTime.now(); // default hari ini
@@ -84,10 +88,13 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   final categories = ref.watch(
                     categoriesByTypeProvider(_type == TransactionType.income),
                   );
-                  final validCategory = categories.any(
-                    (c) => c.id == _categoryId,
-                  ) ? _categoryId : null;
-                  
+                  final validCategory =
+                      categories.any(
+                        (c) => c.id == _categoryId,
+                      )
+                      ? _categoryId
+                      : null;
+
                   return DropdownButtonFormField<String>(
                     // initialValue: _categoryId,
                     initialValue: validCategory,
@@ -105,7 +112,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
             const SizedBox(height: 12),
 
-            /// DATE PICKER 
+            /// DATE PICKER
             InkWell(
               onTap: _pickDate,
               child: InputDecorator(
@@ -135,18 +142,56 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
             const SizedBox(height: 12),
 
             /// FROM ACCOUNT
-            TextField(
-              decoration: const InputDecoration(labelText: 'From Account'),
-              onChanged: (val) => _fromAccount = val,
+            Consumer(
+              builder: (context, ref, _) {
+                final accounts = ref.watch(accountProvider);
+
+                final validAccount = accounts.any((a) => a.id == _fromAccountId)
+                    ? _fromAccountId
+                    : null;
+
+                return DropdownButtonFormField<String>(
+                  initialValue: validAccount,
+                  decoration: const InputDecoration(
+                    labelText: 'From Account',
+                  ),
+                  items: accounts.map((acc) {
+                    return DropdownMenuItem(
+                      value: acc.id,
+                      child: Text(acc.name),
+                    );
+                  }).toList(),
+                  onChanged: (val) => setState(() => _fromAccountId = val),
+                );
+              },
             ),
 
             const SizedBox(height: 12),
 
             /// TO ACCOUNT (TRANSFER ONLY)
             if (_type == TransactionType.transfer)
-              TextField(
-                decoration: const InputDecoration(labelText: 'To Account'),
-                onChanged: (val) => _toAccount = val,
+              Consumer(
+                builder: (context, ref, _) {
+                  final accounts = ref.watch(accountProvider);
+
+                  final validAccount = accounts.any((a) => a.id == _toAccountId)
+                      ? _toAccountId
+                      : null;
+
+                  return DropdownButtonFormField<String>(
+                    initialValue: validAccount,
+                    decoration: const InputDecoration(
+                      labelText: 'To Account',
+                    ),
+                    items: accounts.map((acc) {
+                      return DropdownMenuItem(
+                        value: acc.id,
+                        child: Text(acc.name),
+                      );
+                    }).toList(),
+                    onChanged: (val) => setState(() => _toAccountId = val),
+                  );
+                },
               ),
 
             const SizedBox(height: 12),
@@ -189,41 +234,57 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     }
   }
 
-void _save() {
-  final amount = int.tryParse(_amountController.text) ?? 0;
-  final notifier = ref.read(transactionProvider.notifier);
+  void _save() {
+    final amount = int.tryParse(_amountController.text) ?? 0;
 
-  if (widget.transaction == null) {
-    // ===== ADD =====
-    final tx = Transaction(
-      id: const Uuid().v4(),
-      amount: amount,
-      type: _type,
-      date: _selectedDate,
-      fromAccountId: _fromAccount,
-      toAccountId: _type == TransactionType.transfer ? _toAccount : null,
-      note: _noteController.text,
-      categoryId: _type == TransactionType.transfer ? null : _categoryId,
-    );
+    if (_fromAccountId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Select account')),
+      );
+      return;
+    }
 
-    notifier.add(tx);
-  } else {
-    // ===== UPDATE =====
-    final tx = widget.transaction!;
+    if (_type != TransactionType.transfer && _categoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Select category')),
+      );
+      return;
+    }
 
-    tx.amount = amount;
-    tx.type = _type;
-    tx.date = _selectedDate;
-    tx.fromAccountId = _fromAccount;
-    tx.toAccountId = _type == TransactionType.transfer ? _toAccount : null;
-    tx.note = _noteController.text;
-    tx.categoryId = _type == TransactionType.transfer ? null : _categoryId;
+    final notifier = ref.read(transactionProvider.notifier);
 
-    notifier.update(tx);
+    if (widget.transaction == null) {
+      // ===== ADD =====
+      final tx = Transaction(
+        id: const Uuid().v4(),
+        type: _type,
+        amount: amount,
+        date: _selectedDate,
+        categoryId: _type == TransactionType.transfer ? null : _categoryId,
+        fromAccountId: _fromAccountId!,
+        toAccountId: _type == TransactionType.transfer ? _toAccountId : null,
+        note: _noteController.text,
+      );
+
+      notifier.add(tx);
+    } else {
+      // ===== UPDATE =====
+      final tx = widget.transaction!;
+
+      tx.type = _type;
+      tx.amount = amount;
+      tx.date = _selectedDate;
+      tx.categoryId = _type == TransactionType.transfer ? null : _categoryId;
+      tx.fromAccountId = _fromAccountId!;
+      tx.toAccountId = _type == TransactionType.transfer ? _toAccountId : null;
+      tx.note = _noteController.text;
+
+      notifier.update(tx);
+    }
+
+    Navigator.pop(context);
   }
 
-  Navigator.pop(context);
-}
   String _formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }

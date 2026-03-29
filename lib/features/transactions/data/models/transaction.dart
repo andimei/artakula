@@ -5,31 +5,31 @@ part 'transaction.g.dart';
 @HiveType(typeId: 10)
 class Transaction extends HiveObject {
   @HiveField(0)
-   String id;
+  String id;
 
   @HiveField(1)
-   int amount;
+  int amount;
 
   @HiveField(2)
-   TransactionType type;
+  TransactionType type;
 
   @HiveField(3)
-   DateTime date;
+  DateTime date;
 
   @HiveField(4)
-   String note;
+  String note;
 
   @HiveField(5)
-   String? categoryId;
+  String? categoryId;
 
   @HiveField(6)
-   String fromAccountId;
+  String fromAccountId;
 
   @HiveField(7)
-   String? toAccountId;
+  String? toAccountId;
 
   @HiveField(8)
-   DateTime createdAt;
+  DateTime createdAt;
 
   Transaction({
     required this.id,
@@ -42,6 +42,23 @@ class Transaction extends HiveObject {
     this.note = '',
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
+
+  DateTime get dateOnly {
+    return DateTime(date.year, date.month, date.day);
+  }
+
+  int get signedAmount {
+    switch (type) {
+      case TransactionType.income:
+        return amount;
+
+      case TransactionType.expense:
+        return -amount;
+
+      case TransactionType.transfer:
+        return 0;
+    }
+  }
 }
 
 @HiveType(typeId: 11)

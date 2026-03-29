@@ -1,70 +1,13 @@
+import 'package:artakula/features/accounts/controller/account_provider.dart';
 import 'package:artakula/features/transactions/data/transaction_hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/transaction.dart';
 
-// final transactionProvider =
-//     StateNotifierProvider<TransactionNotifier, List<Transaction>>((ref) {
-//       return TransactionNotifier();
-//     });
-
-// class TransactionNotifier extends StateNotifier<List<Transaction>> {
-//   late Box<Transaction> _box;
-
-//   TransactionNotifier() : super([]) {
-//     _init();
-//   }
-
-//   void _init() {
-//     _box = Hive.box<Transaction>('transactions');
-//     state = _box.values.toList();
-//   }
-
-//   /// Add
-//   Future<void> add(Transaction tx) async {
-//     await _box.put(tx.id, tx);
-//     state = [...state, tx];
-//   }
-
-//   /// Update
-//   Future<void> update(Transaction tx) async {
-//     await tx.save();
-//     state = [..._box.values];
-//   }
-
-//   /// Delete
-//   Future<void> delete(Transaction tx) async {
-//     await tx.delete();
-//     state = [..._box.values];
-//   }
-
-//   /// Delete with undo
-//   void deleteWithUndo(BuildContext context, Transaction tx) {
-//     delete(tx);
-
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: const Text('Transaction deleted'),
-//         action: SnackBarAction(
-//           label: 'UNDO',
-//           onPressed: () {
-//             add(tx);
-//           },
-//         ),
-//       ),
-//     );
-//   }
-
-//   /// Refresh manual (optional)
-//   void refresh() {
-//     state = [..._box.values];
-//   }
-// }
-
-
-final transactionProvider = StateNotifierProvider<TransactionNotifier, List<Transaction>>(
-  (ref) => TransactionNotifier(),
-);
+final transactionProvider =
+    StateNotifierProvider<TransactionNotifier, List<Transaction>>(
+      (ref) => TransactionNotifier(),
+    );
 
 class TransactionNotifier extends StateNotifier<List<Transaction>> {
   TransactionNotifier() : super([]) {
@@ -108,9 +51,7 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
       ),
     );
   }
-
 }
-
 
 final totalIncomeProvider = Provider<int>((ref) {
   final txs = ref.watch(transactionProvider);
@@ -160,4 +101,17 @@ final accountBalanceProvider = Provider.family<int, String>((ref, accountId) {
   }
 
   return balance;
+});
+
+final totalBalanceProvider = Provider<int>((ref) {
+  final accounts = ref.watch(accountProvider);
+  int total = 0;
+
+  for (final account in accounts) {
+    final balance = ref.watch(accountBalanceProvider(account.id));
+
+    total += balance;
+  }
+
+  return total;
 });

@@ -3,10 +3,11 @@ import 'package:artakula/features/shell/presentation/pages/shell_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/bootstrap/app_bootstrap.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await registerHiveAdapters();
+  await initializeDateFormatting('id_ID', null);
 
   runApp(
     const ProviderScope(

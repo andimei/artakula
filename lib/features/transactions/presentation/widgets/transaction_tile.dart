@@ -1,3 +1,5 @@
+import 'package:artakula/features/accounts/controller/account_provider.dart';
+import 'package:artakula/features/accounts/data/models/account.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/transaction.dart';
@@ -22,6 +24,15 @@ class TransactionTile extends ConsumerWidget {
     final isTransfer = transaction.type == TransactionType.transfer;
 
     final categories = ref.watch(categoryProvider);
+    final accounts = ref.watch(accountProvider);
+
+    String getAccountName(String id) {
+      final acc = accounts.firstWhere(
+        (a) => a.id == id,
+        orElse: () => Account.empty(),
+      );
+      return acc.name;
+    }
 
     Category? category;
 
@@ -40,38 +51,43 @@ class TransactionTile extends ConsumerWidget {
         : Colors.blueGrey;
 
     final sign = isIncome
-        ? '+'
+        ? ''
         : isExpense
         ? '-'
         : '';
 
     final title = isTransfer ? 'Transfer' : category?.name ?? 'Transaction';
 
+    // final subtitle = isTransfer
+    //     ? '${transaction.fromAccountId} to ${transaction.toAccountId}'
+    //     : transaction.fromAccountId;
+
     final subtitle = isTransfer
-        ? '${transaction.fromAccountId} to ${transaction.toAccountId}'
-        : transaction.fromAccountId;
+        ? '${getAccountName(transaction.fromAccountId)} → ${getAccountName(transaction.toAccountId!)}'
+        : getAccountName(transaction.fromAccountId);
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          // borderRadius: BorderRadius.circular(12),
+          border: Border(
+            bottom: BorderSide(
+              color: Color(0xFFE0E0E0),
+            ),
+          ),
         ),
         child: Row(
           children: [
             /// Icon
             CircleAvatar(
-              backgroundColor: color.withOpacity(0.15),
+              backgroundColor: Colors.grey,
+              // backgroundColor: color.withOpacity(0.15),
               child: Icon(
-                isIncome
-                    ? Icons.arrow_downward
-                    : isExpense
-                    ? Icons.arrow_upward
-                    : Icons.swap_horiz,
-                color: color,
+                isTransfer ? Icons.swap_horiz : category?.icon,
+                color: Colors.white,
               ),
             ),
 
@@ -84,11 +100,11 @@ class TransactionTile extends ConsumerWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
-                    subtitle ?? '',
+                    subtitle,
                     style: const TextStyle(color: Colors.grey),
                   ),
                 ],
@@ -100,7 +116,7 @@ class TransactionTile extends ConsumerWidget {
               "$sign${_formatCurrency(transaction.amount)}",
               style: TextStyle(
                 color: color,
-                fontWeight: FontWeight.bold,
+                // fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -110,7 +126,7 @@ class TransactionTile extends ConsumerWidget {
   }
 
   String _formatCurrency(int value) {
-    return "IDR ${value.toString().replaceAllMapped(
+    return "Rp${value.toString().replaceAllMapped(
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
       (match) => '.',
     )}";

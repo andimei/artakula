@@ -18,4 +18,8 @@ class Account extends HiveObject {
     required this.name,
     this.initialBalance = 0,
   });
+
+  factory Account.empty() {
+    return Account(id: '', name: 'Unknown');
+  }
 }
