@@ -4,11 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../data/models/category.dart';
 
-// final categoryProvider =
-//     StateNotifierProvider<CategoryNotifier, List<Category>>(
-//       (ref) => CategoryNotifier(),
-//     );
-
 final categoryServiceProvider = Provider<CategoryHiveService>((ref) {
   return CategoryHiveService();
 });
@@ -26,13 +21,6 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
   }
 
   final CategoryHiveService _service;
-
-  // class CategoryNotifier extends StateNotifier<List<Category>> {
-  //   CategoryNotifier() : super([]) {
-  //     _load();
-  //   }
-
-  // final _service = CategoryHiveService();
 
   void _load() {
     state = _service.getAll();
@@ -93,13 +81,6 @@ final incomeCategoriesProvider = Provider<List<Category>>((ref) {
   return categories.where((c) => c.isIncome && !c.isSystem).toList();
 });
 
-// final categoriesByTypeProvider = Provider.family<List<Category>, bool>((
-//   ref,
-//   isIncome,
-// ) {
-//   final categories = ref.watch(categoryProvider);
-//   return categories.where((c) => c.isIncome == isIncome).toList();
-// });
 
 final categoriesByTypeProvider = Provider.family<List<Category>, bool>((
   ref,

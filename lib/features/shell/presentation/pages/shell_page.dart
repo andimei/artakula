@@ -33,11 +33,11 @@ class _ShellPageState extends State<ShellPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('artakula')),
-      drawer: AppDrawer(
-        // themeMode: widget.themeMode,
-        // onThemeChanged: widget.onThemeChanged,
-      ),
+      // appBar: AppBar(title: const Text('artakula')),
+      // drawer: AppDrawer(
+      //   // themeMode: widget.themeMode,
+      //   // onThemeChanged: widget.onThemeChanged,
+      // ),
       body: IndexedStack(
         index: _currentIndex,
         children: const [

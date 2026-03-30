@@ -77,6 +77,8 @@ class CategoriesPage extends ConsumerWidget {
     List<Category> categories,
     bool isIncome,
   ) {
+    // final filtered = categories.where((c) => c.isIncome == isIncome).toList();
+
     final filtered = categories
         .where((c) => !c.isSystem && c.isIncome == isIncome)
         .toList();

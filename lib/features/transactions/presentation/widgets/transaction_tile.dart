@@ -1,3 +1,4 @@
+import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/accounts/controller/account_provider.dart';
 import 'package:artakula/features/accounts/data/models/account.dart';
 import 'package:flutter/material.dart';
@@ -45,10 +46,10 @@ class TransactionTile extends ConsumerWidget {
     }
 
     final color = isIncome
-        ? Colors.green
+        ?context.semantic.income
         : isExpense
-        ? Colors.red
-        : Colors.blueGrey;
+        ? context.semantic.expense
+        : context.colors.secondary;
 
     final sign = isIncome
         ? ''
@@ -71,11 +72,12 @@ class TransactionTile extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.surfaceContainerLowest,
           // borderRadius: BorderRadius.circular(12),
           border: Border(
             bottom: BorderSide(
-              color: Color(0xFFE0E0E0),
+              color: context.colors.outlineVariant,
+              width: 1,
             ),
           ),
         ),
@@ -83,11 +85,10 @@ class TransactionTile extends ConsumerWidget {
           children: [
             /// Icon
             CircleAvatar(
-              backgroundColor: Colors.grey,
-              // backgroundColor: color.withOpacity(0.15),
+              backgroundColor: context.colors.surface,
               child: Icon(
                 isTransfer ? Icons.swap_horiz : category?.icon,
-                color: Colors.white,
+                color: context.colors.primary,
               ),
             ),
 
@@ -126,9 +127,9 @@ class TransactionTile extends ConsumerWidget {
   }
 
   String _formatCurrency(int value) {
-    return "Rp${value.toString().replaceAllMapped(
+    return value.toString().replaceAllMapped(
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
       (match) => '.',
-    )}";
+    );
   }
 }

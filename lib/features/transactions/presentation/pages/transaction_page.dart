@@ -171,6 +171,7 @@
 //   }
 // }
 
+import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/transactions/data/models/transaction.dart';
 import 'package:artakula/features/transactions/providers/transaction_filter_provider.dart';
 import 'package:flutter/material.dart';
@@ -194,11 +195,11 @@ class TransactionsPage extends ConsumerWidget {
     final balance = ref.watch(balanceProvider);
 
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: context.colors.surfaceContainerLowest,
 
       /// APPBAR
       appBar: AppBar(
-        title: const Text("Transaksi"),
+        title: const Text("Transactions"),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -221,7 +222,7 @@ class TransactionsPage extends ConsumerWidget {
       ),
 
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
+        backgroundColor: context.colors.primary,
         child: const Icon(Icons.edit),
         onPressed: () {
           Navigator.push(
@@ -235,8 +236,8 @@ class TransactionsPage extends ConsumerWidget {
 
       body: Column(
         children: [
-          _monthSwitcher(),
-          _summary(income, expense, balance),
+          _monthSwitcher(context),
+          _summary(context, income, expense, balance),
           const SizedBox(height: 8),
 
           Expanded(
@@ -248,17 +249,20 @@ class TransactionsPage extends ConsumerWidget {
   }
 
   /// MONTH SWITCHER
-  Widget _monthSwitcher() {
+  Widget _monthSwitcher(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
+        children: [
           Icon(Icons.chevron_left),
           Text(
             "Maret 2026",
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(
+              fontSize: 16,
+              color: context.colors.primary,
+            ),
           ),
           Icon(Icons.chevron_right),
         ],
@@ -267,7 +271,7 @@ class TransactionsPage extends ConsumerWidget {
   }
 
   /// SUMMARY
-  Widget _summary(int income, int expense, int balance) {
+  Widget _summary(BuildContext context, int income, int expense, int balance) {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(
@@ -277,8 +281,8 @@ class TransactionsPage extends ConsumerWidget {
       child: Column(
         children: [
           _row("Income", income, Colors.green),
-          _row("Expense", -expense, Colors.red),
-          const Divider(height: 2),
+          _row("Expense", -expense, context.colors.shadow),
+          Divider(color: context.colors.outlineVariant, height: 2),
           _row(
             "Total",
             balance,
@@ -353,7 +357,7 @@ class TransactionsPage extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _dayHeader(day, total),
+            _dayHeader(context, day, total),
             ...items.map(
               (tx) => TransactionTile(
                 transaction: tx,
@@ -374,14 +378,14 @@ class TransactionsPage extends ConsumerWidget {
     );
   }
 
-  Widget _dayHeader(DateTime day, int total) {
+  Widget _dayHeader(BuildContext context, DateTime day, int total) {
     final date = DateFormat('d').format(day);
     final weekday = DateFormat('EEEE', 'id_ID').format(day);
     final monthYear = DateFormat('MMMM yyyy', 'id_ID').format(day);
 
     return Container(
       padding: const EdgeInsets.all(12),
-      color: Colors.grey[300],
+      color: context.colors.surfaceContainer,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -389,9 +393,10 @@ class TransactionsPage extends ConsumerWidget {
             children: [
               Text(
                 date,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
+                  color: context.colors.primary,
                 ),
               ),
               const SizedBox(width: 14),

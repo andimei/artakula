@@ -1,3 +1,4 @@
+import 'package:artakula/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:artakula/features/shell/presentation/pages/shell_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,8 +41,10 @@ class MyApp extends ConsumerWidget {
 
       data: (_) => MaterialApp(
         themeMode: themeMode,
-        theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
+        // theme: ThemeData.light(),
+        theme: AppTheme.light,
+        // darkTheme: ThemeData.dark(),
+        darkTheme: AppTheme.dark,
         home: const ShellPage(),
       ),
     );

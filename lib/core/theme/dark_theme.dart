@@ -14,3 +14,11 @@ ThemeData darkTheme() {
     ),
   );
 }
+
+
+// extensions: const [
+//   AppSemanticColors(
+//     income: Color(0xFF4ADE80),
+//     expense: Color(0xFFF87171),
+//   ),
+// ],
