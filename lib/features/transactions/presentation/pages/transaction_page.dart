@@ -280,11 +280,12 @@ class TransactionsPage extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          _row("Income", income, Colors.green),
-          _row("Expense", -expense, context.colors.shadow),
+          _row("Income", "+", income, context.semantic.income),
+          _row("Expense", "-", expense, context.semantic.expense),
           Divider(color: context.colors.outlineVariant, height: 2),
           _row(
             "Total",
+            "",
             balance,
             Colors.black,
             titleStyle: const TextStyle(
@@ -303,6 +304,7 @@ class TransactionsPage extends ConsumerWidget {
 
   Widget _row(
     String title,
+    String sign,
     int value,
     Color color, {
     TextStyle? titleStyle,
@@ -318,7 +320,7 @@ class TransactionsPage extends ConsumerWidget {
             style: titleStyle,
           ),
           Text(
-            _formatCurrency(value),
+            _formatCurrency(sign, value),
             style:
                 valueStyle ??
                 TextStyle(
@@ -358,6 +360,7 @@ class TransactionsPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _dayHeader(context, day, total),
+            Divider(color: context.colors.outlineVariant, height: 2),
             ...items.map(
               (tx) => TransactionTile(
                 transaction: tx,
@@ -385,7 +388,8 @@ class TransactionsPage extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.all(12),
-      color: context.colors.surfaceContainer,
+      // color: context.colors.surfaceContainer,
+      color: context.colors.surfaceContainerLow,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -396,7 +400,8 @@ class TransactionsPage extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: context.colors.primary,
+                  // color: context.colors.primary,
+                  // color: Colors.black,
                 ),
               ),
               const SizedBox(width: 14),
@@ -417,22 +422,29 @@ class TransactionsPage extends ConsumerWidget {
               ),
             ],
           ),
-          Text(_formatCurrency(total)),
+          Text(_formatCurrency("", total)),
         ],
       ),
     );
   }
 
-  String _formatCurrency(int value) {
-    final abs = value.abs().toString().replaceAllMapped(
+  String _formatCurrency(String sign, int value) {
+    return "${sign}Rp${value.toString().replaceAllMapped(
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
       (match) => '.',
-    );
-
-    if (value < 0) {
-      return "-$abs";
-    }
-
-    return abs;
+    )}";
   }
+
+  // String _formatCurrency(int value) {
+  //   final abs = value.abs().toString().replaceAllMapped(
+  //     RegExp(r'\B(?=(\d{3})+(?!\d))'),
+  //     (match) => '.',
+  //   );
+
+  //   if (value < 0) {
+  //     return "-$abs";
+  //   }
+
+  //   return abs;
+  // }
 }

@@ -46,13 +46,13 @@ class TransactionTile extends ConsumerWidget {
     }
 
     final color = isIncome
-        ?context.semantic.income
+        ? context.semantic.income
         : isExpense
         ? context.semantic.expense
-        : context.colors.secondary;
+        : Colors.black;
 
     final sign = isIncome
-        ? ''
+        ? '+'
         : isExpense
         ? '-'
         : '';
@@ -127,9 +127,9 @@ class TransactionTile extends ConsumerWidget {
   }
 
   String _formatCurrency(int value) {
-    return value.toString().replaceAllMapped(
+    return "Rp${value.toString().replaceAllMapped(
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
       (match) => '.',
-    );
+    )}";
   }
 }

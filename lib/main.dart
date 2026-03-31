@@ -23,29 +23,21 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bootstrap = ref.watch(appBootstrapProvider);
-
     final themeMode = ref.watch(themeProvider);
 
-    return bootstrap.when(
-      loading: () => const MaterialApp(
-        home: Scaffold(
+    return MaterialApp(
+      themeMode: themeMode,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+
+      home: bootstrap.when(
+        loading: () => const Scaffold(
           body: Center(child: CircularProgressIndicator()),
         ),
-      ),
-
-      error: (e, _) => MaterialApp(
-        home: Scaffold(
+        error: (e, _) => Scaffold(
           body: Center(child: Text('Error: $e')),
         ),
-      ),
-
-      data: (_) => MaterialApp(
-        themeMode: themeMode,
-        // theme: ThemeData.light(),
-        theme: AppTheme.light,
-        // darkTheme: ThemeData.dark(),
-        darkTheme: AppTheme.dark,
-        home: const ShellPage(),
+        data: (_) => const ShellPage(),
       ),
     );
   }
