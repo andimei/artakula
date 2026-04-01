@@ -1,7 +1,13 @@
 import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/accounts/controller/account_provider.dart';
+import 'package:artakula/features/accounts/data/models/account.dart';
+import 'package:artakula/features/categories/data/models/category.dart';
+import 'package:artakula/features/transactions/presentation/pages/account_picker_page.dart';
+import 'package:artakula/features/transactions/presentation/pages/category_picker_page.dart';
+import 'package:artakula/features/transactions/presentation/widgets/account_picker.dart';
 import 'package:artakula/features/transactions/presentation/widgets/fintech_field.dart';
 import 'package:artakula/features/transactions/presentation/widgets/keypad_button.dart';
+import 'package:artakula/features/transactions/presentation/widgets/numeric_keypad.dart';
 import 'package:artakula/features/transactions/presentation/widgets/transaction_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -65,185 +71,33 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       _toAccountId = tx.toAccountId;
       _selectedDate = tx.date; // ambil dari data lama
     } else {
+      print("GIANCOK");
       _selectedDate = DateTime.now(); // default hari ini
     }
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   final isEdit = widget.transaction != null;
-
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: Text(isEdit ? 'Edit Transaction' : 'Add Transaction'),
-  //     ),
-  //     body: SingleChildScrollView(
-  //       // biar gak overflow
-  //       padding: const EdgeInsets.all(16),
-  //       child: Column(
-  //         children: [
-  //           /// TYPE
-  //           DropdownButtonFormField<TransactionType>(
-  //             initialValue: _type,
-  //             items: TransactionType.values.map((type) {
-  //               return DropdownMenuItem(
-  //                 value: type,
-  //                 child: Text(type.name),
-  //               );
-  //             }).toList(),
-  //             onChanged: (val) {
-  //               setState(() {
-  //                 _type = val!;
-  //                 _categoryId = null; // reset biar gak mismatch
-  //               });
-  //             },
-  //             decoration: const InputDecoration(labelText: 'Type'),
-  //           ),
-
-  //           /// CATEGORY
-  //           if (_type != TransactionType.transfer)
-  //             Consumer(
-  //               builder: (context, ref, _) {
-  //                 final categories = ref.watch(
-  //                   categoriesByTypeProvider(_type == TransactionType.income),
-  //                 );
-  //                 final validCategory =
-  //                     categories.any(
-  //                       (c) => c.id == _categoryId,
-  //                     )
-  //                     ? _categoryId
-  //                     : null;
-
-  //                 return DropdownButtonFormField<String>(
-  //                   // initialValue: _categoryId,
-  //                   initialValue: validCategory,
-  //                   items: categories.map((cat) {
-  //                     return DropdownMenuItem(
-  //                       value: cat.id,
-  //                       child: Text(cat.name),
-  //                     );
-  //                   }).toList(),
-  //                   onChanged: (val) => setState(() => _categoryId = val),
-  //                   decoration: const InputDecoration(labelText: 'Category'),
-  //                 );
-  //               },
-  //             ),
-
-  //           const SizedBox(height: 12),
-
-  //           /// DATE PICKER
-  //           InkWell(
-  //             onTap: _pickDate,
-  //             child: InputDecorator(
-  //               decoration: const InputDecoration(
-  //                 labelText: 'Date',
-  //                 border: OutlineInputBorder(),
-  //               ),
-  //               child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 children: [
-  //                   Text(_formatDate(_selectedDate)),
-  //                   const Icon(Icons.calendar_today),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-
-  //           const SizedBox(height: 12),
-
-  //           /// AMOUNT
-  //           TextField(
-  //             controller: _amountController,
-  //             keyboardType: TextInputType.number,
-  //             decoration: const InputDecoration(labelText: 'Amount'),
-  //           ),
-
-  //           const SizedBox(height: 12),
-
-  //           /// FROM ACCOUNT
-  //           Consumer(
-  //             builder: (context, ref, _) {
-  //               final accounts = ref.watch(accountProvider);
-
-  //               final validAccount = accounts.any((a) => a.id == _fromAccountId)
-  //                   ? _fromAccountId
-  //                   : null;
-
-  //               return DropdownButtonFormField<String>(
-  //                 initialValue: validAccount,
-  //                 decoration: const InputDecoration(
-  //                   labelText: 'From Account',
-  //                 ),
-  //                 items: accounts.map((acc) {
-  //                   return DropdownMenuItem(
-  //                     value: acc.id,
-  //                     child: Text(acc.name),
-  //                   );
-  //                 }).toList(),
-  //                 onChanged: (val) => setState(() => _fromAccountId = val),
-  //               );
-  //             },
-  //           ),
-
-  //           const SizedBox(height: 12),
-
-  //           /// TO ACCOUNT (TRANSFER ONLY)
-  //           if (_type == TransactionType.transfer)
-  //             Consumer(
-  //               builder: (context, ref, _) {
-  //                 final accounts = ref.watch(accountProvider);
-
-  //                 final validAccount = accounts.any((a) => a.id == _toAccountId)
-  //                     ? _toAccountId
-  //                     : null;
-
-  //                 return DropdownButtonFormField<String>(
-  //                   initialValue: validAccount,
-  //                   decoration: const InputDecoration(
-  //                     labelText: 'To Account',
-  //                   ),
-  //                   items: accounts.map((acc) {
-  //                     return DropdownMenuItem(
-  //                       value: acc.id,
-  //                       child: Text(acc.name),
-  //                     );
-  //                   }).toList(),
-  //                   onChanged: (val) => setState(() => _toAccountId = val),
-  //                 );
-  //               },
-  //             ),
-
-  //           const SizedBox(height: 12),
-
-  //           /// NOTE
-  //           TextField(
-  //             controller: _noteController,
-  //             decoration: const InputDecoration(labelText: 'Note'),
-  //           ),
-
-  //           const SizedBox(height: 20),
-
-  //           /// SAVE
-  //           SizedBox(
-  //             width: double.infinity,
-  //             child: ElevatedButton(
-  //               onPressed: _save,
-  //               child: const Text('Save'),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.transaction != null;
 
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? 'Edit Transaction' : 'Add Transaction'),
+        actions: [
+          isEdit
+              ? IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: _confirmDelete,
+                  style: IconButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    iconSize: 32,
+                    minimumSize: const Size(56, 56), // ukuran tombol
+                  ),
+                )
+              : SizedBox.shrink(),
+        ],
       ),
 
       body: Column(
@@ -263,42 +117,91 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
           _amountHero(),
 
           /// FIELDS
-          // _accountField(),
-          _accountCategoryRow(),
+          _accountCategoryRow(ref),
           const SizedBox(height: 6),
           _dateTimeRow(),
           const SizedBox(height: 6),
           _noteField(),
 
+          /// ========= SAVE BUTTON =========
+          Container(
+            padding: const EdgeInsets.all(16),
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _save,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                "Save",
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
           Spacer(),
-          // Expanded(
-          //   child: ListView(
-          //     padding: const EdgeInsets.symmetric(horizontal: 16),
-          //     children: [
-          //       Row(
-          //         mainAxisAlignment: MainAxisAlignment.center,
-          //         children: [Text("dek")],
-          //       ),
-          //       // Expanded(
-          //       //   child: Row(
-          //       //     children: [
-          //       //       _accountTile(),
-          //       //       if (_type != TransactionType.transfer) _categoryTile(),
-          //       //     ],
-          //       //   ),
-          //       // ),
-          //       // _accountTile(),
-          //       // if (_type != TransactionType.transfer) _categoryTile(),
-          //       // _dateTile(),
-          //       // _noteTile(),
-          //     ],
-          //   ),
-          // ),
-
-          // _saveButton(),
-          _numericKeypad(),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: keyboardOpen
+                ? const SizedBox.shrink()
+                : NumericKeypad(
+                    onKeyTap: _onKeyTap,
+                    onClear: _clearAmount,
+                  ),
+          ),
         ],
       ),
+    );
+  }
+
+  Future<void> _confirmDelete() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Delete transaction?"),
+        content: const Text("This action cannot be undone."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+
+    if (ok == true) {
+      // ref.read(transactionProvider.notifier).delete(widget.transaction.id);
+
+      Navigator.pop(context);
+    }
+  }
+
+  Widget _keypadRow(List<String> keys) {
+    return Row(
+      children: keys.map((key) {
+        return Expanded(
+          child: SizedBox(
+            height: 64,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: KeypadButton(
+                label: key,
+                onTap: () {
+                  if (key == ",") return;
+                  _onKeyTap(key);
+                },
+                onLongpress: _clearAmount,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -347,70 +250,137 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     );
   }
 
-  Widget _accountField() {
-    return Consumer(
-      builder: (_, ref, _) {
-        final accounts = ref.watch(accountProvider);
+  // Widget _accountCategoryRow() {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+  //     child: Row(
+  //       children: [
+  //         Expanded(
+  //           child: FintechField(
+  //             label: "Account",
+  //             value: "Dompet",
+  //             icon: Icons.account_balance_wallet_outlined,
+  //             onTap: () async {
+  //               final account = await openAccountPicker(
+  //                 context,
+  //                 selectedId: _toAccountId,
+  //               );
 
-        final acc = accounts.firstWhere(
-          (a) => a.id == _fromAccountId,
-          orElse: () => accounts.first,
-        );
+  //               if (account != null) {
+  //                 setState(() {
+  //                   _toAccountId = account.id;
+  //                 });
+  //               }
+  //             },
+  //           ),
+  //         ),
 
-        return InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.account_balance_wallet_outlined),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    "Account",
-                    // overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  //         const SizedBox(width: 6),
 
-  Widget _accountCategoryRow() {
+  //         Expanded(
+  //           child: FintechField(
+  //             label: "Category",
+  //             value: "Makan",
+  //             icon: Icons.category_outlined,
+  //             onTap: () {},
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _accountCategoryRow(WidgetRef ref) {
+    final accounts = ref.watch(accountProvider);
+    final categories = ref.watch(categoryProvider);
+
+    // final selectedAccount = accounts
+    //     .where((a) => a.id == _toAccountId)
+    //     .firstOrNull;
+
+    final selectedAccount = accounts
+        .where((a) => a.id == _fromAccountId)
+        .firstOrNull;
+
+    final selectedCategory = categories
+        .where((c) => c.id == _categoryId)
+        .firstOrNull;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
+          /// ACCOUNT
           Expanded(
             child: FintechField(
               label: "Account",
-              value: "Dompet",
+              value: selectedAccount?.name ?? "Select account",
               icon: Icons.account_balance_wallet_outlined,
-              onTap: () {
-                print("Giancok");
+              onTap: () async {
+                final account = await openAccountPicker(
+                  context,
+                  selectedId: _fromAccountId,
+                );
+
+                if (account != null) {
+                  setState(() => _fromAccountId = account.id);
+                }
               },
             ),
           ),
 
           const SizedBox(width: 6),
 
+          /// CATEGORY
           Expanded(
             child: FintechField(
               label: "Category",
-              value: "Makan",
+              value: selectedCategory?.name ?? "Select category",
               icon: Icons.category_outlined,
-              onTap: () {},
+              onTap: () async {
+                final category = await openCategoryPicker(
+                  context,
+                  type: _type,
+                  selectedId: _categoryId,
+                );
+
+                if (category != null) {
+                  setState(() => _categoryId = category.id);
+                }
+              },
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<Account?> openAccountPicker(
+    BuildContext context, {
+    String? selectedId,
+  }) {
+    return Navigator.push<Account>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AccountPickerPage(
+          selectedId: selectedId,
+        ),
+      ),
+    );
+  }
+
+  Future<Category?> openCategoryPicker(
+    BuildContext context, {
+    required TransactionType type,
+    String? selectedId,
+  }) {
+    return Navigator.push<Category>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CategoryPickerPage(
+          type: type,
+          selectedId: selectedId,
+        ),
       ),
     );
   }
@@ -459,7 +429,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
             TextField(
               controller: _noteController,
               decoration: const InputDecoration(
-                hintText: "Optional note...",
+                // hintText: "Optional note...",
                 border: InputBorder.none,
                 isDense: true,
               ),
@@ -488,127 +458,67 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     );
   }
 
-  Widget _accountTile() {
-    return Consumer(
-      builder: (_, ref, _) {
-        final accounts = ref.watch(accountProvider);
+  // Widget _saveButton() {
+  //   final amount = int.tryParse(formattedAmount) ?? 0;
 
-        final acc = accounts.firstWhere(
-          (a) => a.id == _fromAccountId,
-          orElse: () => accounts.first,
-        );
+  //   final canSave =
+  //       amount > 0 &&
+  //       _fromAccountId != null &&
+  //       (_type == TransactionType.transfer || _categoryId != null);
 
-        return ListTile(
-          title: const Text("Account"),
-          subtitle: Text(acc.name),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {
-            // open selector
-          },
-        );
-      },
-    );
-  }
+  //   return SafeArea(
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16),
+  //       child: SizedBox(
+  //         width: double.infinity,
+  //         child: FilledButton(
+  //           onPressed: canSave ? _save : null,
+  //           child: const Text("Save Transaction"),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _categoryTile() {
-    return Consumer(
-      builder: (_, ref, __) {
-        final categories = ref.watch(
-          categoriesByTypeProvider(_type == TransactionType.income),
-        );
+  // Widget _numericKeypad() {
+  //   return Container(
+  //     padding: const EdgeInsets.only(bottom: 8, left: 2, right: 2),
+  //     color: context.colors.surfaceContainerHighest,
+  //     child: Column(
+  //       // mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         // KeypadButton(label: '2', onTap: (){})
+  //         _keypadRow(["7", "8", "9"]),
+  //         _keypadRow(["4", "5", "6"]),
+  //         _keypadRow(["1", "2", "3"]),
+  //         _keypadRow([",", "0", "del"]),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-        final cat = categories.where((c) => c.id == _categoryId).firstOrNull;
-
-        return ListTile(
-          title: const Text("Category"),
-          subtitle: Text(cat?.name ?? "Select"),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {},
-        );
-      },
-    );
-  }
-
-  Widget _dateTile() {
-    return ListTile(
-      title: const Text("Date"),
-      subtitle: Text(_formatDate(_selectedDate)),
-      trailing: const Icon(Icons.calendar_today),
-      onTap: _pickDate,
-    );
-  }
-
-  Widget _noteTile() {
-    return TextField(
-      controller: _noteController,
-      decoration: const InputDecoration(
-        hintText: "Add note (optional)",
-        border: InputBorder.none,
-      ),
-    );
-  }
-
-  Widget _saveButton() {
-    final amount = int.tryParse(_amountController.text) ?? 0;
-
-    final canSave =
-        amount > 0 &&
-        _fromAccountId != null &&
-        (_type == TransactionType.transfer || _categoryId != null);
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: canSave ? _save : null,
-            child: const Text("Save Transaction"),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _numericKeypad() {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 8, left: 2, right: 2),
-      color: context.colors.surfaceContainerHighest,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // KeypadButton(label: '2', onTap: (){})
-          _keypadRow(["7", "8", "9"]),
-          _keypadRow(["4", "5", "6"]),
-          _keypadRow(["1", "2", "3"]),
-          _keypadRow([",", "0", "del"]),
-        ],
-      ),
-    );
-  }
-
-  Widget _keypadRow(List<String> keys) {
-    return Row(
-      children: keys.map((key) {
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(1),
-            child: SizedBox(
-              height: 64,
-              child: KeypadButton(
-                label: key,
-                onTap: () {
-                  if (key == ",") return; // optional decimal
-                  _onKeyTap(key);
-                },
-                onLongpress: _clearAmount,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
+  // Widget _keypadRow(List<String> keys) {
+  //   return Row(
+  //     children: keys.map((key) {
+  //       return Expanded(
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(1),
+  //           child: SizedBox(
+  //             height: 64,
+  //             child: KeypadButton(
+  //               label: key,
+  //               onTap: () {
+  //                 if (key == ",") return; // optional decimal
+  //                 _onKeyTap(key);
+  //               },
+  //               onLongpress: _clearAmount,
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     }).toList(),
+  //   );
+  // }
 
   void _onKeyTap(String key) {
     HapticFeedback.lightImpact();
@@ -652,55 +562,135 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     }
   }
 
-  void _save() {
-    final amount = int.tryParse(_amountController.text) ?? 0;
+  // void _save() {
+  //   // final amount = int.tryParse(_amountController.text) ?? 0;
+  //   final amount = int.tryParse(formattedAmount) ?? 0;
 
-    if (_fromAccountId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select account')),
-      );
+  //   if (_fromAccountId == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Select account')),
+  //     );
+  //     return;
+  //   }
+
+  //   if (_type != TransactionType.transfer && _categoryId == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Select category')),
+  //     );
+  //     return;
+  //   }
+
+  //   final notifier = ref.read(transactionProvider.notifier);
+
+  //   if (widget.transaction == null) {
+  //     // ===== ADD =====
+  //     final tx = Transaction(
+  //       id: const Uuid().v4(),
+  //       type: _type,
+  //       amount: amount,
+  //       date: _selectedDate,
+  //       categoryId: _type == TransactionType.transfer ? null : _categoryId,
+  //       fromAccountId: _fromAccountId!,
+  //       toAccountId: _type == TransactionType.transfer ? _toAccountId : null,
+  //       note: _noteController.text,
+  //     );
+
+  //     notifier.add(tx);
+  //   } else {
+  //     // ===== UPDATE =====
+  //     final tx = widget.transaction!;
+
+  //     tx.type = _type;
+  //     tx.amount = amount;
+  //     tx.date = _selectedDate;
+  //     tx.categoryId = _type == TransactionType.transfer ? null : _categoryId;
+  //     tx.fromAccountId = _fromAccountId!;
+  //     tx.toAccountId = _type == TransactionType.transfer ? _toAccountId : null;
+  //     tx.note = _noteController.text;
+
+  //     notifier.update(tx);
+  //   }
+
+  //   Navigator.pop(context);
+  // }
+  void _save() {
+    // final amount = int.tryParse(formattedAmount) ?? 0;
+
+    // print(_amount);
+    // return;
+
+    /// ===== VALIDATION =====
+
+    if (_amount <= 0) {
+      _error("Amount must be greater than 0");
       return;
     }
 
+    if (_fromAccountId == null) {
+      _error("Select account");
+      return;
+    }
+
+    /// transfer validation
+    if (_type == TransactionType.transfer) {
+      if (_toAccountId == null) {
+        _error("Select destination account");
+        return;
+      }
+
+      if (_fromAccountId == _toAccountId) {
+        _error("Cannot transfer to same account");
+        return;
+      }
+    }
+
+    /// category validation
     if (_type != TransactionType.transfer && _categoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select category')),
-      );
+      _error("Select category");
       return;
     }
 
     final notifier = ref.read(transactionProvider.notifier);
 
+    /// ===== ADD =====
     if (widget.transaction == null) {
-      // ===== ADD =====
       final tx = Transaction(
         id: const Uuid().v4(),
         type: _type,
-        amount: amount,
+        amount: _amount,
         date: _selectedDate,
         categoryId: _type == TransactionType.transfer ? null : _categoryId,
         fromAccountId: _fromAccountId!,
         toAccountId: _type == TransactionType.transfer ? _toAccountId : null,
-        note: _noteController.text,
+        note: _noteController.text.trim(),
       );
 
       notifier.add(tx);
-    } else {
-      // ===== UPDATE =====
-      final tx = widget.transaction!;
+    }
+    /// ===== UPDATE (IMMUTABLE) =====
+    else {
+      final old = widget.transaction!;
 
-      tx.type = _type;
-      tx.amount = amount;
-      tx.date = _selectedDate;
-      tx.categoryId = _type == TransactionType.transfer ? null : _categoryId;
-      tx.fromAccountId = _fromAccountId!;
-      tx.toAccountId = _type == TransactionType.transfer ? _toAccountId : null;
-      tx.note = _noteController.text;
+      final updated = old.copyWith(
+        type: _type,
+        amount: _amount,
+        date: _selectedDate,
+        categoryId: _type == TransactionType.transfer ? null : _categoryId,
+        fromAccountId: _fromAccountId!,
+        toAccountId: _type == TransactionType.transfer ? _toAccountId : null,
+        note: _noteController.text.trim(),
+      );
 
-      notifier.update(tx);
+      notifier.update(updated);
     }
 
     Navigator.pop(context);
+  }
+
+  void _error(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   String _formatDate(DateTime date) {
