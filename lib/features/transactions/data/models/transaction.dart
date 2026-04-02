@@ -31,6 +31,9 @@ class Transaction extends HiveObject {
   @HiveField(8)
   DateTime createdAt;
 
+  @HiveField(9)
+  bool isInitialBalance;
+
   Transaction({
     required this.id,
     required this.amount,
@@ -40,31 +43,32 @@ class Transaction extends HiveObject {
     this.toAccountId,
     this.categoryId,
     this.note = '',
+    this.isInitialBalance = false,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  /// ===== COPY WITH =====
-  Transaction copyWith({
-    TransactionType? type,
-    int? amount,
-    DateTime? date,
-    String? categoryId,
-    String? fromAccountId,
-    String? toAccountId,
-    String? note,
-  }) {
-    return Transaction(
-      id: id,
-      amount: amount ?? this.amount,
-      type: type ?? this.type,
-      date: date ?? this.date,
-      categoryId: categoryId ?? this.categoryId,
-      fromAccountId: fromAccountId ?? this.fromAccountId,
-      toAccountId: toAccountId ?? this.toAccountId,
-      note: note ?? this.note,
-      createdAt: createdAt,
-    );
-  }
+  // /// ===== COPY WITH =====
+  // Transaction copyWith({
+  //   TransactionType? type,
+  //   int? amount,
+  //   DateTime? date,
+  //   String? categoryId,
+  //   String? fromAccountId,
+  //   String? toAccountId,
+  //   String? note,
+  // }) {
+  //   return Transaction(
+  //     id: id,
+  //     amount: amount ?? this.amount,
+  //     type: type ?? this.type,
+  //     date: date ?? this.date,
+  //     categoryId: categoryId ?? this.categoryId,
+  //     fromAccountId: fromAccountId ?? this.fromAccountId,
+  //     toAccountId: toAccountId ?? this.toAccountId,
+  //     note: note ?? this.note,
+  //     createdAt: createdAt,
+  //   );
+  // }
 
   /// ===== HELPERS =====
 

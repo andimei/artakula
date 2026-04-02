@@ -1,12 +1,11 @@
-import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/accounts/controller/account_provider.dart';
 import 'package:artakula/features/accounts/data/models/account.dart';
 import 'package:artakula/features/categories/data/models/category.dart';
 import 'package:artakula/features/transactions/presentation/pages/account_picker_page.dart';
 import 'package:artakula/features/transactions/presentation/pages/category_picker_page.dart';
-import 'package:artakula/features/transactions/presentation/widgets/account_picker.dart';
+
 import 'package:artakula/features/transactions/presentation/widgets/fintech_field.dart';
-import 'package:artakula/features/transactions/presentation/widgets/keypad_button.dart';
+
 import 'package:artakula/features/transactions/presentation/widgets/numeric_keypad.dart';
 import 'package:artakula/features/transactions/presentation/widgets/transaction_type.dart';
 import 'package:flutter/material.dart';
@@ -31,13 +30,11 @@ class TransactionFormPage extends ConsumerStatefulWidget {
 }
 
 class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
-  // final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
   TransactionType _type = TransactionType.expense;
 
   int _amount = 0;
-  late TextEditingController _amountController;
 
   String get formattedAmount {
     if (_amount == 0) return "0";
@@ -47,38 +44,44 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       (match) => '.',
     );
   }
-  // String _fromAccount = 'cash';
-  // String? _toAccount;
 
   String? _categoryId;
   String? _fromAccountId;
   String? _toAccountId;
 
-  late DateTime _selectedDate;
+  late DateTime _selectedDate = DateTime.now();
+
+  late bool _isInitialBalance = false;
 
   @override
   void initState() {
     super.initState();
 
     final tx = widget.transaction;
-    _categoryId = tx?.categoryId;
 
     if (tx != null) {
-      _amountController.text = tx.amount.toString();
-      _noteController.text = tx.note;
+      /// EDIT MODE
       _type = tx.type;
       _fromAccountId = tx.fromAccountId;
       _toAccountId = tx.toAccountId;
-      _selectedDate = tx.date; // ambil dari data lama
+      _selectedDate = tx.date;
+      _amount = tx.amount;
+      _isInitialBalance = tx.isInitialBalance;
+
+      /// hanya set category jika bukan transfer
+      _categoryId = tx.type == TransactionType.transfer ? null : tx.categoryId;
+
+      _noteController.text = tx.note;
     } else {
-      print("GIANCOK");
-      _selectedDate = DateTime.now(); // default hari ini
+      /// ADD MODE
+      _selectedDate = DateTime.now();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.transaction != null;
+    final isTransfer = _type == TransactionType.transfer;
 
     final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
@@ -102,22 +105,23 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
       body: Column(
         children: [
-          TransactionTypeSegment(
-            value: _type,
-            onChanged: (type) {
-              HapticFeedback.selectionClick();
-              setState(() {
-                _type = type;
-                _categoryId = null;
-              });
-            },
-          ),
+          if (!_isInitialBalance)
+            TransactionTypeSegment(
+              value: _type,
+              onChanged: (type) {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  _type = type;
+                  _categoryId = null;
+                });
+              },
+            ),
 
           /// HERO AMOUNT
           _amountHero(),
 
           /// FIELDS
-          _accountCategoryRow(ref),
+          _accountCategoryRow(ref, isTransfer),
           const SizedBox(height: 6),
           _dateTimeRow(),
           const SizedBox(height: 6),
@@ -176,33 +180,15 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     );
 
     if (ok == true) {
-      // ref.read(transactionProvider.notifier).delete(widget.transaction.id);
+      final tx = widget.transaction;
+      if (tx == null) return;
+
+      await ref.read(transactionProvider.notifier).delete(tx);
+
+      if (!mounted) return;
 
       Navigator.pop(context);
     }
-  }
-
-  Widget _keypadRow(List<String> keys) {
-    return Row(
-      children: keys.map((key) {
-        return Expanded(
-          child: SizedBox(
-            height: 64,
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: KeypadButton(
-                label: key,
-                onTap: () {
-                  if (key == ",") return;
-                  _onKeyTap(key);
-                },
-                onLongpress: _clearAmount,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
   }
 
   Color _typeColor() {
@@ -290,16 +276,16 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
   //   );
   // }
 
-  Widget _accountCategoryRow(WidgetRef ref) {
+  Widget _accountCategoryRow(WidgetRef ref, bool isTransfer) {
     final accounts = ref.watch(accountProvider);
     final categories = ref.watch(categoryProvider);
 
-    // final selectedAccount = accounts
-    //     .where((a) => a.id == _toAccountId)
-    //     .firstOrNull;
-
     final selectedAccount = accounts
         .where((a) => a.id == _fromAccountId)
+        .firstOrNull;
+
+    final selectedToAccount = accounts
+        .where((a) => a.id == _toAccountId)
         .firstOrNull;
 
     final selectedCategory = categories
@@ -313,7 +299,8 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
           /// ACCOUNT
           Expanded(
             child: FintechField(
-              label: "Account",
+              enable: !_isInitialBalance,
+              label: !isTransfer ? "Account" : "From Account",
               value: selectedAccount?.name ?? "Select account",
               icon: Icons.account_balance_wallet_outlined,
               onTap: () async {
@@ -331,24 +318,43 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
           const SizedBox(width: 6),
 
-          /// CATEGORY
+          /// CATEGORY / TO_ACCOUNT
           Expanded(
-            child: FintechField(
-              label: "Category",
-              value: selectedCategory?.name ?? "Select category",
-              icon: Icons.category_outlined,
-              onTap: () async {
-                final category = await openCategoryPicker(
-                  context,
-                  type: _type,
-                  selectedId: _categoryId,
-                );
+            child: !isTransfer
+                ? FintechField(
+                    enable: !_isInitialBalance,
+                    label: "Category",
+                    value: selectedCategory?.name ?? "Select category",
+                    icon: Icons.category_outlined,
+                    onTap: () async {
+                      final category = await openCategoryPicker(
+                        context,
+                        type: _type,
+                        selectedId: _categoryId,
+                      );
 
-                if (category != null) {
-                  setState(() => _categoryId = category.id);
-                }
-              },
-            ),
+                      if (category != null) {
+                        setState(() => _categoryId = category.id);
+                      }
+                    },
+                  )
+                : FintechField(
+                    label: "To Account",
+                    value: selectedToAccount?.name ?? "Select account",
+                    icon: !isTransfer
+                        ? Icons.category_outlined
+                        : Icons.account_balance_wallet_outlined,
+                    onTap: () async {
+                      final account = await openAccountPicker(
+                        context,
+                        selectedId: _toAccountId,
+                      );
+
+                      if (account != null) {
+                        setState(() => _toAccountId = account.id);
+                      }
+                    },
+                  ),
           ),
         ],
       ),
@@ -410,7 +416,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: 12,
-          vertical: 12,
+          vertical: 2,
         ),
         decoration: BoxDecoration(
           color: scheme.surface,
@@ -428,6 +434,14 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
             ),
             TextField(
               controller: _noteController,
+              maxLength: 30,
+              // buildCounter:
+              //     (
+              //       context, {
+              //       required int currentLength,
+              //       required bool isFocused,
+              //       required int? maxLength,
+              //     }) => null,
               decoration: const InputDecoration(
                 // hintText: "Optional note...",
                 border: InputBorder.none,
@@ -452,10 +466,17 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
   Widget _timeField() {
     return FintechField(
       label: "Time",
-      value: "19:34",
-      icon: Icons.access_time_outlined,
-      onTap: () {},
+      value: _formatTime(_selectedDate),
+      icon: Icons.access_time,
+      onTap: _pickTime,
     );
+  }
+
+  String _formatTime(DateTime date) {
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+
+    return "$hour:$minute";
   }
 
   // Widget _saveButton() {
@@ -560,6 +581,44 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
         _selectedDate = picked;
       });
     }
+  }
+
+  void _pickTime() async {
+    final time = await openTimePickerDialog(
+      context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDate),
+    );
+
+    if (time == null) return;
+    if (!mounted) return;
+
+    setState(() {
+      _selectedDate = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        time.hour,
+        time.minute,
+      );
+    });
+  }
+
+  Future<TimeOfDay?> openTimePickerDialog(
+    BuildContext context, {
+    TimeOfDay? initialTime,
+  }) {
+    return showTimePicker(
+      context: context,
+      initialTime: initialTime ?? TimeOfDay.now(),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            alwaysUse24HourFormat: true,
+          ),
+          child: child!,
+        );
+      },
+    );
   }
 
   // void _save() {
@@ -669,19 +728,29 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     }
     /// ===== UPDATE (IMMUTABLE) =====
     else {
-      final old = widget.transaction!;
+      // final old = widget.transaction!;
 
-      final updated = old.copyWith(
-        type: _type,
-        amount: _amount,
-        date: _selectedDate,
-        categoryId: _type == TransactionType.transfer ? null : _categoryId,
-        fromAccountId: _fromAccountId!,
-        toAccountId: _type == TransactionType.transfer ? _toAccountId : null,
-        note: _noteController.text.trim(),
-      );
+      // final updated = old.copyWith(
+      //   type: _type,
+      //   amount: _amount,
+      //   date: _selectedDate,
+      //   categoryId: _type == TransactionType.transfer ? null : _categoryId,
+      //   fromAccountId: _fromAccountId!,
+      //   toAccountId: _type == TransactionType.transfer ? _toAccountId : null,
+      //   note: _noteController.text.trim(),
+      // );
 
-      notifier.update(updated);
+      final tx = widget.transaction!;
+
+      tx
+        ..amount = _amount
+        ..note = _noteController.text
+        ..type = _type
+        ..date = _selectedDate;
+
+      ref.read(transactionProvider.notifier).update(tx);
+
+      notifier.update(tx);
     }
 
     Navigator.pop(context);

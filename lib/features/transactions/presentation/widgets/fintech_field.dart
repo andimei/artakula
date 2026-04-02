@@ -78,12 +78,15 @@ class FintechField extends StatefulWidget {
   final VoidCallback onTap;
   final IconData? icon;
 
+  final bool enable;
+
   const FintechField({
     super.key,
     required this.label,
     required this.value,
     required this.onTap,
     this.icon,
+    this.enable = true,
   });
 
   @override
@@ -98,13 +101,17 @@ class _FintechFieldState extends State<FintechField> {
     final scheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTapUp: (_) {
-        setState(() => _pressed = false);
-        HapticFeedback.selectionClick();
-        widget.onTap();
-      },
+      onTapDown: widget.enable ? (_) => setState(() => _pressed = true) : null,
+      onTapCancel: widget.enable
+          ? () => setState(() => _pressed = false)
+          : null,
+      onTapUp: widget.enable
+          ? (_) {
+              setState(() => _pressed = false);
+              HapticFeedback.selectionClick();
+              widget.onTap();
+            }
+          : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
@@ -151,26 +158,29 @@ class _FintechFieldState extends State<FintechField> {
             const SizedBox(height: 4),
 
             /// VALUE
-            Row(
-              children: [
-                if (widget.icon != null) ...[
-                  Icon(widget.icon, size: 18),
-                  const SizedBox(width: 6),
-                ],
-                Expanded(
-                  child: Text(
-                    widget.value ?? "Select",
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: widget.value == null
-                          ? scheme.outline
-                          : scheme.onSurface,
+            Opacity(
+              opacity: widget.enable ? 1 : 0.5,
+              child: Row(
+                children: [
+                  if (widget.icon != null) ...[
+                    Icon(widget.icon, size: 18),
+                    const SizedBox(width: 6),
+                  ],
+                  Expanded(
+                    child: Text(
+                      widget.value ?? "Select",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: widget.value == null
+                            ? scheme.outline
+                            : scheme.onSurface,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

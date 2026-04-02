@@ -1,179 +1,6 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// import '../../providers/transaction_provider.dart';
-// import '../../providers/transaction_filter_provider.dart';
-// import '../widgets/transaction_tile.dart';
-// import 'transaction_form_page.dart';
-
-// class TransactionsPage extends ConsumerWidget {
-//   const TransactionsPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final txs = ref.watch(filteredTransactionProvider); // 🔥 pakai filter
-//     // final filter = ref.watch(transactionFilterProvider);
-
-//     final income = ref.watch(totalIncomeProvider);
-//     final expense = ref.watch(totalExpenseProvider);
-//     final balance = ref.watch(balanceProvider);
-
-//     return Scaffold(
-//       backgroundColor: Colors.grey[100],
-//       floatingActionButton: FloatingActionButton(
-//         backgroundColor: Colors.pink,
-//         onPressed: () {
-//           Navigator.push(
-//             context,
-//             MaterialPageRoute(
-//               builder: (_) => const TransactionFormPage(),
-//             ),
-//           );
-//         },
-//         child: const Icon(Icons.add),
-//       ),
-//       body: Column(
-//         children: [
-//           _header(income, expense, balance),
-
-//           /// 🔥 FILTER
-//           Padding(
-//             padding: const EdgeInsets.all(12),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceAround,
-//               children: [
-//                 _filterChip(ref, TransactionFilter.all, "All"),
-//                 _filterChip(ref, TransactionFilter.today, "Today"),
-//                 _filterChip(ref, TransactionFilter.thisMonth, "Month"),
-//               ],
-//             ),
-//           ),
-
-//           Expanded(
-//             child: txs.isEmpty
-//                 ? const Center(child: Text('No transactions yet'))
-//                 : ListView.separated(
-//                     // padding: const EdgeInsets.all(12),
-//                     padding: EdgeInsets.only(
-//                       bottom: MediaQuery.of(context).padding.bottom + 80,
-//                     ),
-//                     itemCount: txs.length,
-//                     separatorBuilder: (_, _) => const SizedBox(height: 2),
-//                     itemBuilder: (context, index) {
-//                       final tx = txs[index];
-
-//                       return TransactionTile(
-//                         transaction: tx,
-//                         onTap: () {
-//                           Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                               builder: (_) =>
-//                                   TransactionFormPage(transaction: tx),
-//                             ),
-//                           );
-//                         },
-//                       );
-//                     },
-//                   ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   /// HEADER
-//   Widget _header(int income, int expense, int balance) {
-//     return Container(
-//       padding: const EdgeInsets.only(top: 50, bottom: 16),
-//       decoration: const BoxDecoration(
-//         color: Colors.pink,
-//         borderRadius: BorderRadius.vertical(
-//           bottom: Radius.circular(20),
-//         ),
-//       ),
-//       child: Column(
-//         children: [
-//           const Text(
-//             "Today",
-//             style: TextStyle(color: Colors.white, fontSize: 16),
-//           ),
-//           const SizedBox(height: 16),
-//           Container(
-//             margin: const EdgeInsets.symmetric(horizontal: 16),
-//             padding: const EdgeInsets.symmetric(vertical: 12),
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               borderRadius: BorderRadius.circular(12),
-//             ),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceAround,
-//               children: [
-//                 _summaryItem("Income", income, Colors.green),
-//                 _divider(),
-//                 _summaryItem("Expenses", expense, Colors.red),
-//                 _divider(),
-//                 _summaryItem("Balance", balance, Colors.green),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   ///  FILTER CHIP
-//   Widget _filterChip(
-//     WidgetRef ref,
-//     TransactionFilter value,
-//     String label,
-//   ) {
-//     final selected = ref.watch(transactionFilterProvider) == value;
-
-//     return ChoiceChip(
-//       label: Text(label),
-//       selected: selected,
-//       onSelected: (_) {
-//         ref.read(transactionFilterProvider.notifier).state = value;
-//       },
-//     );
-//   }
-
-//   Widget _summaryItem(String title, int value, Color color) {
-//     return Column(
-//       children: [
-//         Text(title, style: const TextStyle(color: Colors.grey)),
-//         const SizedBox(height: 4),
-//         Text(
-//           _formatCurrency(value),
-//           style: TextStyle(
-//             color: color,
-//             fontWeight: FontWeight.bold,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _divider() {
-//     return Container(
-//       width: 1,
-//       height: 30,
-//       color: Colors.grey[300],
-//     );
-//   }
-
-//   String _formatCurrency(int value) {
-//     return "IDR ${value.toString().replaceAllMapped(
-//       RegExp(r'\B(?=(\d{3})+(?!\d))'),
-//       (match) => '.',
-//     )}";
-//   }
-// }
-
 import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/transactions/data/models/transaction.dart';
-import 'package:artakula/features/transactions/providers/transaction_filter_provider.dart';
+// import 'package:artakula/features/transactions/providers/transaction_filter_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -183,16 +10,28 @@ import '../widgets/transaction_tile.dart';
 import 'transaction_filter_page.dart';
 import 'transaction_form_page.dart';
 
-class TransactionsPage extends ConsumerWidget {
+class TransactionsPage extends ConsumerStatefulWidget {
   const TransactionsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final txs = ref.watch(filteredTransactionProvider);
+  ConsumerState<TransactionsPage> createState() => _TransactionsPageState();
+}
 
-    final income = ref.watch(totalIncomeProvider);
-    final expense = ref.watch(totalExpenseProvider);
-    final balance = ref.watch(balanceProvider);
+class _TransactionsPageState extends ConsumerState<TransactionsPage> {
+  DateTime _currentMonth = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    final txs = ref.watch(filteredTransactionProvider(_currentMonth));
+
+    final income = ref.watch(totalIncomeProvider(_currentMonth));
+    final expense = ref.watch(totalExpenseProvider(_currentMonth));
+    final balance = ref.watch(balanceProvider(_currentMonth));
+
+    final monthTxs = txs.where((tx) {
+      return tx.date.year == _currentMonth.year &&
+          tx.date.month == _currentMonth.month;
+    }).toList();
 
     return Scaffold(
       backgroundColor: context.colors.surfaceContainerLowest,
@@ -241,32 +80,194 @@ class TransactionsPage extends ConsumerWidget {
           const SizedBox(height: 8),
 
           Expanded(
-            child: _buildGroupedList(txs),
+            child: _buildGroupedList(monthTxs),
           ),
         ],
       ),
     );
   }
 
+  void _prevMonth() {
+    setState(() {
+      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
+    });
+  }
+
+  void _nextMonth() {
+    setState(() {
+      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
+    });
+  }
+
+  String get _monthLabel {
+    const months = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
+    ];
+
+    return "${months[_currentMonth.month - 1]} ${_currentMonth.year}";
+  }
+
   /// MONTH SWITCHER
   Widget _monthSwitcher(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
       color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.chevron_left),
-          Text(
-            "Maret 2026",
-            style: TextStyle(
-              fontSize: 16,
-              color: context.colors.primary,
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: _prevMonth,
+          ),
+
+          GestureDetector(
+            // onTap: _pickMonth,
+            onTap: () async {
+              final picked = await openMonthYearPicker(
+                context,
+                _currentMonth,
+              );
+
+              if (!mounted || picked == null) return;
+
+              setState(() {
+                _currentMonth = picked;
+              });
+            },
+            child: Text(
+              _monthLabel,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: context.colors.primary,
+              ),
             ),
           ),
-          Icon(Icons.chevron_right),
+
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: _nextMonth,
+          ),
         ],
       ),
+    );
+  }
+
+  Future<DateTime?> openMonthYearPicker(
+    BuildContext context,
+    DateTime initial,
+  ) {
+    int selectedYear = initial.year;
+    int selectedMonth = initial.month;
+
+    return showDialog<DateTime>(
+      context: context,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Select Month"),
+
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// YEAR PICKER
+                  DropdownButton<int>(
+                    value: selectedYear,
+                    items: List.generate(
+                      81,
+                      (i) {
+                        final year = 2020 + i;
+                        return DropdownMenuItem(
+                          value: year,
+                          child: Text("$year"),
+                        );
+                      },
+                    ),
+                    onChanged: (val) {
+                      setState(() => selectedYear = val!);
+                    },
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  /// MONTH GRID
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: List.generate(12, (index) {
+                      final month = index + 1;
+
+                      final isSelected = month == selectedMonth;
+
+                      return ChoiceChip(
+                        showCheckmark: false,
+                        label: SizedBox(
+                          width: 28, 
+                          child: Center(
+                            child: Text(
+                              [
+                                "Jan",
+                                "Feb",
+                                "Mar",
+                                "Apr",
+                                "Mei",
+                                "Jun",
+                                "Jul",
+                                "Agu",
+                                "Sep",
+                                "Okt",
+                                "Nov",
+                                "Des",
+                              ][index],
+                            ),
+                          ),
+                        ),
+                        selected: isSelected,
+                        onSelected: (_) {
+                          setState(() {
+                            selectedMonth = month;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
+
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                      DateTime(selectedYear, selectedMonth),
+                    );
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -335,13 +336,19 @@ class TransactionsPage extends ConsumerWidget {
   Widget _buildGroupedList(List<Transaction> txs) {
     final Map<DateTime, List<Transaction>> grouped = {};
 
-    for (final Transaction tx in txs) {
+    for (final tx in txs) {
       final date = tx.dateOnly;
 
       grouped.putIfAbsent(date, () => []);
       grouped[date]!.add(tx);
     }
 
+    /// SORT transaksi dalam tiap hari
+    for (final list in grouped.values) {
+      list.sort((a, b) => b.date.compareTo(a.date));
+    }
+
+    /// SORT hari terbaru di atas
     final keys = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
     return ListView.builder(
@@ -360,7 +367,12 @@ class TransactionsPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _dayHeader(context, day, total),
-            Divider(color: context.colors.outlineVariant, height: 2),
+            Divider(
+              color: context.colors.outlineVariant,
+              height: 2,
+            ),
+
+            /// newest transaction first
             ...items.map(
               (tx) => TransactionTile(
                 transaction: tx,
@@ -374,6 +386,7 @@ class TransactionsPage extends ConsumerWidget {
                 },
               ),
             ),
+
             const SizedBox(height: 16),
           ],
         );
@@ -434,17 +447,4 @@ class TransactionsPage extends ConsumerWidget {
       (match) => '.',
     )}";
   }
-
-  // String _formatCurrency(int value) {
-  //   final abs = value.abs().toString().replaceAllMapped(
-  //     RegExp(r'\B(?=(\d{3})+(?!\d))'),
-  //     (match) => '.',
-  //   );
-
-  //   if (value < 0) {
-  //     return "-$abs";
-  //   }
-
-  //   return abs;
-  // }
 }

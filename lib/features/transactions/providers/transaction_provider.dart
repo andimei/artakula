@@ -53,28 +53,44 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
   }
 }
 
-final totalIncomeProvider = Provider<int>((ref) {
+final filteredTransactionProvider =
+    Provider.family<List<Transaction>, DateTime>((ref, month) {
   final txs = ref.watch(transactionProvider);
+
+  return txs.where((tx) {
+    return tx.date.year == month.year &&
+        tx.date.month == month.month;
+  }).toList()
+    ..sort((a, b) => b.date.compareTo(a.date));
+});
+
+
+final totalIncomeProvider =
+    Provider.family<int, DateTime>((ref, month) {
+  final txs = ref.watch(filteredTransactionProvider(month));
 
   return txs
       .where((tx) => tx.type == TransactionType.income)
       .fold(0, (sum, tx) => sum + tx.amount);
 });
 
-final totalExpenseProvider = Provider<int>((ref) {
-  final txs = ref.watch(transactionProvider);
+
+final totalExpenseProvider =
+    Provider.family<int, DateTime>((ref, month) {
+  final txs = ref.watch(filteredTransactionProvider(month));
 
   return txs
       .where((tx) => tx.type == TransactionType.expense)
       .fold(0, (sum, tx) => sum + tx.amount);
 });
 
-final balanceProvider = Provider<int>((ref) {
-  final income = ref.watch(totalIncomeProvider);
-  final expense = ref.watch(totalExpenseProvider);
+final balanceProvider =
+    Provider.family<int, DateTime>((ref, month) {
+  final txs = ref.watch(filteredTransactionProvider(month));
 
-  return income - expense;
+  return txs.fold(0, (sum, tx) => sum + tx.signedAmount);
 });
+
 
 final accountBalanceProvider = Provider.family<int, String>((ref, accountId) {
   final txs = ref.watch(transactionProvider);

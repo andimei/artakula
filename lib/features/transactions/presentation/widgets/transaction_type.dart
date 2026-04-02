@@ -24,9 +24,7 @@ class TransactionTypeSegment extends StatelessWidget {
           return Container(
             height: 36,
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Stack(
@@ -63,11 +61,9 @@ class TransactionTypeSegment extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               color: value == type
                                   ? Colors.white
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurface,
+                                  : Theme.of(context).colorScheme.onSurface,
                             ),
-                            child: Text(type.name),
+                            child: Text(_nameType(type)),
                           ),
                         ),
                       ),
@@ -80,6 +76,17 @@ class TransactionTypeSegment extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String _nameType(TransactionType type) {
+    switch (type) {
+      case TransactionType.income:
+        return "Income";
+      case TransactionType.expense:
+        return "Expense";
+      case TransactionType.transfer:
+        return "Transfer";
+    }
   }
 
   /// posisi indicator

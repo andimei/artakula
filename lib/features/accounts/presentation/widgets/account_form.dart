@@ -205,6 +205,7 @@ class _AccountFormState extends ConsumerState<AccountForm> {
             categoryId: initialCategory.id,
             amount: balance,
             date: DateTime.now(),
+            isInitialBalance: true,
           ),
         );
       }
