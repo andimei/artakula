@@ -81,6 +81,7 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
           /// NAME
           TextField(
             controller: _nameController,
+            maxLength: 10,
             decoration: const InputDecoration(
               labelText: 'Name',
             ),

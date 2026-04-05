@@ -1,4 +1,6 @@
 // import 'package:artakula/features/accounts/presentation/widgets/account_tile.dart';
+import 'package:artakula/features/accounts/data/models/account.dart';
+import 'package:artakula/features/accounts/presentation/widgets/account_from_dialog.dart';
 import 'package:artakula/features/accounts/presentation/widgets/account_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,15 +21,18 @@ class AccountsPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Accounts')),
       floatingActionButton: FloatingActionButton(
         heroTag: null,
+
+        onPressed: () => _openForm(context, ref, null),
+        // onPressed: () {
+        //   Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       // builder: (_) => AccountFormPage(),
+        //       builder: (_) => AccountFormDialog(),
+        //     ),
+        //   );
+        // },
         child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AccountFormPage(),
-            ),
-          );
-        },
       ),
       body: accounts.isEmpty
           ? const Center(child: Text('No accounts yet'))
@@ -58,6 +63,7 @@ class AccountsPage extends ConsumerWidget {
                         },
                         child: AccountTile(
                           account: account,
+                          // onTap: _openForm(context, ref, account),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -74,6 +80,20 @@ class AccountsPage extends ConsumerWidget {
                 ),
               ],
             ),
+    );
+  }
+
+  /// OPEN FORM
+  void _openForm(
+    BuildContext context,
+    WidgetRef ref, [
+    Account? account,
+  ]) {
+    showDialog(
+      context: context,
+      builder: (_) => AccountFormDialog(
+        account: account,
+      ),
     );
   }
 

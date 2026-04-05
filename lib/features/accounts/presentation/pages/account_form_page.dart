@@ -49,5 +49,27 @@ class _AccountFormPageState extends State<AccountFormPage> {
         controller: controller,
       ),
     );
+
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     leading: IconButton(
+    //       icon: const Icon(Icons.close),
+    //       onPressed: () => Navigator.pop(context),
+    //     ),
+    //     title: Text(isEdit ? 'Edit Account' : 'Add Account'),
+    //     actions: [
+    //       if (isEdit)
+    //         IconButton(
+    //           icon: const Icon(Icons.delete),
+    //           onPressed: controller.delete,
+    //         ),
+    //       IconButton(
+    //         icon: const Icon(Icons.check),
+    //         onPressed: controller.submit,
+    //       ),
+    //     ],
+    //   ),
+    //   body: Text("test"),
+    // );
   }
 }

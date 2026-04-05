@@ -26,6 +26,18 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
     state = _service.getAll();
   }
 
+  bool get isEmpty => _service.isEmpty;
+
+  Future<void> seedIfNeeded(List<Category> defaults) async {
+    if (!_service.isEmpty) return;
+
+    for (final c in defaults) {
+      await _service.add(c);
+    }
+
+    _load();
+  }
+
   Future<void> add(Category category) async {
     await _service.add(category);
     _load();
@@ -80,7 +92,6 @@ final incomeCategoriesProvider = Provider<List<Category>>((ref) {
   final categories = ref.watch(categoryProvider);
   return categories.where((c) => c.isIncome && !c.isSystem).toList();
 });
-
 
 final categoriesByTypeProvider = Provider.family<List<Category>, bool>((
   ref,

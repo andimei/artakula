@@ -1,7 +1,7 @@
 - [ ] Transaction Form
   - [x] Expense & Income Layout
   - [x] Transfer Layout
-  - [ ] Initial Balance Category Layout
+  - [x] Initial Balance Category Layout
   - [x] Type Selector
   - [x] Amount Hero
   - [x] Account Picker
@@ -18,7 +18,7 @@
   - [x] Sort Category terbaru
   - [x] Month switcher
   - [x] Month picker
-  - [ ] Summary per month
+  - [x] Summary per month
   - [ ] Percantik tampilan Transaction
   
 
@@ -26,5 +26,10 @@
   - [ ] Urutan bisa dicustom
 
 
+
 - [ ] Category
+  - [ ] Category default
   - [ ] Urutan bisa dicustom
+  - [ ] Tambahkan recenly di atas
+
+- [ ] Overview

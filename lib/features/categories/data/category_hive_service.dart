@@ -21,4 +21,6 @@ class CategoryHiveService {
   Future<void> delete(Category category) async {
     await category.delete();
   }
+
+  bool get isEmpty => _box.isEmpty;
 }

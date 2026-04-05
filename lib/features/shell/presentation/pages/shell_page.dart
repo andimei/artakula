@@ -1,11 +1,12 @@
 // import 'package:artakula/features/accounts/presentation/pages/account_page.dart';
+import 'package:artakula/features/overviews/presentation/pages/overview_page.dart';
 import 'package:artakula/features/shell/presentation/pages/more_page.dart';
 import 'package:flutter/material.dart';
 // import '../../../../shared/widgets/empty_tab.dart';
 import '../models/tab_data.dart';
 // import '../../../expenses/presentation/pages/expenses_page.dart';
-import '../widgets/app_drawer.dart';
-import '../../../../features/expenses/presentation/pages/expense_form_page.dart';
+// import '../widgets/app_drawer.dart';
+// import '../../../../features/expenses/presentation/pages/expense_form_page.dart';
 import '../../../../features/transactions/presentation/pages/transaction_page.dart';
 
 class ShellPage extends StatefulWidget {
@@ -24,6 +25,7 @@ class _ShellPageState extends State<ShellPage> {
   final _tabs = const [
     TabData('Transactions', Icons.receipt_long),
     // TabData('Accounts', Icons.account_balance_wallet),
+    TabData('Overviews', Icons.pie_chart),
     TabData('More', Icons.more_horiz),
     // TabData('Expenses', Icons.receipt_long),
     // TabData('Incomes', Icons.trending_up),
@@ -43,6 +45,7 @@ class _ShellPageState extends State<ShellPage> {
         children: const [
           TransactionsPage(),
           // AccountsPage(),
+          OverviewPage(),
           MorePage(),
           // ExpensesPage(),
           // EmptyTab(title: 'Incomes'),
@@ -62,19 +65,19 @@ class _ShellPageState extends State<ShellPage> {
             )
             .toList(),
       ),
-      floatingActionButton: _currentIndex == 1
-          ? FloatingActionButton(
-              heroTag: null,
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const ExpenseFormPage(),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
+      // floatingActionButton: _currentIndex == 1
+      //     ? FloatingActionButton(
+      //         heroTag: null,
+      //         onPressed: () {
+      //           Navigator.of(context).push(
+      //             MaterialPageRoute(
+      //               builder: (_) => const ExpenseFormPage(),
+      //             ),
+      //           );
+      //         },
+      //         child: const Icon(Icons.add),
+      //       )
+      //     : null,
     );
   }
 }
