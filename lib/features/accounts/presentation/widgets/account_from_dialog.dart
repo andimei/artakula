@@ -29,7 +29,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
 
   final _currencyFormat = NumberFormat.decimalPattern('id_ID');
 
-  IconData _selectedIcon = Icons.account_balance_wallet;
+  final IconData _selectedIcon = Icons.account_balance_wallet;
 
   @override
   void initState() {
@@ -39,14 +39,11 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
 
     _balanceController.addListener(_formatBalance);
 
-    // if (acc != null) {
-    //   /// EDIT MODE
-    //   _nameController.text = acc.name;
-    //   // _selectedIcon = acc.icon;
-    // } else {
-    //   /// ADD MODE → ikut tab aktif
-    //   _isIncome = widget.isIncome;
-    // }
+    if (acc != null) {
+      /// EDIT MODE
+      _nameController.text = acc.name;
+      // _selectedIcon = acc.icon;
+    }
   }
 
   @override
@@ -93,24 +90,25 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
             ),
           ),
 
-          TextField(
-            controller: _balanceController,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(10),
-            ],
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              hintText: "0",
-              labelText: 'Initial Balance',
+          if (!isEdit)
+            TextField(
+              controller: _balanceController,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
+              ],
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                hintText: "0",
+                labelText: 'Initial Balance',
+              ),
             ),
-          ),
         ],
       ),
       actions: [
         if (isEdit)
           TextButton(
-            onPressed: _delete,
+            onPressed: _confirmDelete,
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
@@ -187,13 +185,35 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
   }
 
   /// DELETE
-  void _delete() {
-    final account = widget.account;
-    if (account == null) return;
+  Future<void> _confirmDelete() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Delete Account?"),
+        content: const Text("This action cannot be undone."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
 
-    ref.read(accountProvider.notifier).delete(account);
+    if (ok == true) {
+      final account = widget.account;
+      if (account == null) return;
 
-    Navigator.pop(context);
+      ref.read(accountProvider.notifier).delete(account);
+
+      if (!mounted) return;
+
+      Navigator.pop(context);
+    }
   }
 
   void _formatBalance() {

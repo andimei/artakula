@@ -1,5 +1,8 @@
+import 'package:artakula/core/bootstrap/data_migration.dart';
 import 'package:artakula/features/categories/data/default_category.dart';
+import 'package:artakula/features/categories/data/models/category.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import '../hive/hive_adapters.dart';
 import '../../features/categories/providers/category_provider.dart';
 
@@ -9,11 +12,9 @@ final appBootstrapProvider = FutureProvider<void>((ref) async {
 
   final notifier = ref.read(categoryProvider.notifier);
 
-  await notifier.seedIfNeeded(defaultCategories); // seed default categrory
-  await notifier.ensureSystemCategories(); // Init system data
-
+  /// Seed default category (sekali saja)
   await notifier.seedIfNeeded(defaultCategories);
 
-  /// Init system data
-  // await ref.read(categoryProvider.notifier).ensureSystemCategories();
+  /// Pastikan system category ada
+  await notifier.ensureSystemCategories();
 });

@@ -63,16 +63,8 @@ class AccountsPage extends ConsumerWidget {
                         },
                         child: AccountTile(
                           account: account,
-                          // onTap: _openForm(context, ref, account),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    AccountFormPage(account: account),
-                              ),
-                            );
-                          },
+                          onTap: () => _openForm(context, ref, account),
+
                         ),
                       );
                     },

@@ -543,7 +543,6 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
   void _onKeyTap(String key) {
     HapticFeedback.lightImpact();
-
     setState(() {
       if (key == "del") {
         _amount = _amount ~/ 10;
@@ -569,11 +568,12 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
   // PICK DATE
   Future<void> _pickDate() async {
+    final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      lastDate: DateTime(now.year, now.month, now.day),
     );
 
     if (picked != null) {
@@ -621,91 +621,34 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     );
   }
 
-  // void _save() {
-  //   // final amount = int.tryParse(_amountController.text) ?? 0;
-  //   final amount = int.tryParse(formattedAmount) ?? 0;
-
-  //   if (_fromAccountId == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Select account')),
-  //     );
-  //     return;
-  //   }
-
-  //   if (_type != TransactionType.transfer && _categoryId == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Select category')),
-  //     );
-  //     return;
-  //   }
-
-  //   final notifier = ref.read(transactionProvider.notifier);
-
-  //   if (widget.transaction == null) {
-  //     // ===== ADD =====
-  //     final tx = Transaction(
-  //       id: const Uuid().v4(),
-  //       type: _type,
-  //       amount: amount,
-  //       date: _selectedDate,
-  //       categoryId: _type == TransactionType.transfer ? null : _categoryId,
-  //       fromAccountId: _fromAccountId!,
-  //       toAccountId: _type == TransactionType.transfer ? _toAccountId : null,
-  //       note: _noteController.text,
-  //     );
-
-  //     notifier.add(tx);
-  //   } else {
-  //     // ===== UPDATE =====
-  //     final tx = widget.transaction!;
-
-  //     tx.type = _type;
-  //     tx.amount = amount;
-  //     tx.date = _selectedDate;
-  //     tx.categoryId = _type == TransactionType.transfer ? null : _categoryId;
-  //     tx.fromAccountId = _fromAccountId!;
-  //     tx.toAccountId = _type == TransactionType.transfer ? _toAccountId : null;
-  //     tx.note = _noteController.text;
-
-  //     notifier.update(tx);
-  //   }
-
-  //   Navigator.pop(context);
-  // }
   void _save() {
-    // final amount = int.tryParse(formattedAmount) ?? 0;
-
-    // print(_amount);
-    // return;
-
     /// ===== VALIDATION =====
-
     if (_amount <= 0) {
-      _error("Amount must be greater than 0");
+      _error("Amount must be greater than 0!");
       return;
     }
 
     if (_fromAccountId == null) {
-      _error("Select account");
+      _error("Select account!");
       return;
     }
 
     /// transfer validation
     if (_type == TransactionType.transfer) {
       if (_toAccountId == null) {
-        _error("Select destination account");
+        _error("Select destination account!");
         return;
       }
 
       if (_fromAccountId == _toAccountId) {
-        _error("Cannot transfer to same account");
+        _error("Cannot transfer to same account!");
         return;
       }
     }
 
     /// category validation
     if (_type != TransactionType.transfer && _categoryId == null) {
-      _error("Select category");
+      _error("Select category!");
       return;
     }
 
@@ -726,26 +669,15 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
       notifier.add(tx);
     }
-    /// ===== UPDATE (IMMUTABLE) =====
+    /// ===== UPDATE  =====
     else {
-      // final old = widget.transaction!;
-
-      // final updated = old.copyWith(
-      //   type: _type,
-      //   amount: _amount,
-      //   date: _selectedDate,
-      //   categoryId: _type == TransactionType.transfer ? null : _categoryId,
-      //   fromAccountId: _fromAccountId!,
-      //   toAccountId: _type == TransactionType.transfer ? _toAccountId : null,
-      //   note: _noteController.text.trim(),
-      // );
-
       final tx = widget.transaction!;
 
       tx
         ..amount = _amount
         ..note = _noteController.text
         ..type = _type
+        ..categoryId = _categoryId
         ..date = _selectedDate;
 
       ref.read(transactionProvider.notifier).update(tx);
@@ -758,7 +690,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
   void _error(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(content: Text(message),duration: Duration(seconds: 1),),
     );
   }
 

@@ -22,14 +22,16 @@ class CategoryAdapter extends TypeAdapter<Category> {
       isIncome: fields[2] as bool,
       isSystem: fields[3] as bool,
       systemKey: fields[4] as String?,
-      iconCodePoint: fields[5] as int,
+      iconCodePoint: fields[5] as int?,
+      isDefault: fields[6] as bool?,
+      order: fields[7] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Category obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +43,11 @@ class CategoryAdapter extends TypeAdapter<Category> {
       ..writeByte(4)
       ..write(obj.systemKey)
       ..writeByte(5)
-      ..write(obj.iconCodePoint);
+      ..write(obj.iconCodePoint)
+      ..writeByte(6)
+      ..write(obj.isDefault)
+      ..writeByte(7)
+      ..write(obj.order);
   }
 
   @override

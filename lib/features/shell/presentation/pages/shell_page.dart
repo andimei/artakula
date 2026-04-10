@@ -25,7 +25,7 @@ class _ShellPageState extends State<ShellPage> {
   final _tabs = const [
     TabData('Transactions', Icons.receipt_long),
     // TabData('Accounts', Icons.account_balance_wallet),
-    TabData('Overviews', Icons.pie_chart),
+    TabData('Overviews', Icons.assessment_outlined),
     TabData('More', Icons.more_horiz),
     // TabData('Expenses', Icons.receipt_long),
     // TabData('Incomes', Icons.trending_up),

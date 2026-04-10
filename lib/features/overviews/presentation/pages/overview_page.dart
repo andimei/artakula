@@ -1,4 +1,5 @@
 import 'package:artakula/features/overviews/presentation/widgets/account_card.dart';
+import 'package:artakula/features/overviews/presentation/widgets/cashflow_trend.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,14 +18,15 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
         title: const Text("Overviews"),
       ),
       // body: AccountSnapshotSection(),
-      body: Expanded(
-        child: Column(
-          children: [
-            Card(
-              color: Colors.red,
-            ),
-          ],
-        ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: const [
+          AccountSnapshotCard(),
+           SizedBox(height: 16),
+          CashFlowTrendCard(),
+          // SizedBox(height: 16),
+          // CashFlowTrendCard(),
+        ],
       ),
     );
   }

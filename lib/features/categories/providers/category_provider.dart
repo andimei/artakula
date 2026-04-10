@@ -1,6 +1,8 @@
+import 'package:artakula/core/hive/hive_boxes.dart';
 import 'package:artakula/features/categories/data/category_hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 import '../data/models/category.dart';
 
@@ -38,9 +40,31 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
     _load();
   }
 
+  // Future<void> add(Category category) async {
+  //   await _service.add(category);
+  //   _load();
+  // }
+
   Future<void> add(Category category) async {
-    await _service.add(category);
-    _load();
+    final box = Hive.box<Category>(HiveBoxes.categories);
+
+    /// cari order terakhir
+    int nextOrder = 0;
+
+    if (box.isNotEmpty) {
+      final maxOrder = box.values
+          .map((c) => c.order ?? 0)
+          .reduce((a, b) => a > b ? a : b);
+
+      nextOrder = maxOrder + 1;
+    }
+
+    category.order = nextOrder;
+
+    await box.put(category.id, category);
+
+    state = box.values.toList()
+      ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
   }
 
   Future<void> update(Category category) async {

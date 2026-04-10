@@ -26,6 +26,9 @@ class Category extends HiveObject {
   @HiveField(6)
   bool? isDefault;
 
+  @HiveField(7)
+  int? order;
+
   Category({
     required this.id,
     required this.name,
@@ -34,10 +37,10 @@ class Category extends HiveObject {
     this.systemKey,
     this.iconCodePoint,
     this.isDefault = false,
+    this.order,
   });
 
   IconData get icon => IconData(
-    // iconCodePoint ?? 0xe574, // default icon
     iconCodePoint ?? Icons.category.codePoint,
     fontFamily: 'MaterialIcons',
   );
