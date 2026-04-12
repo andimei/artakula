@@ -38,7 +38,7 @@ class _AccountFormState extends ConsumerState<AccountForm> {
     final acc = widget.account;
     if (acc != null) {
       _nameController.text = acc.name;
-      _balanceController.text = _currencyFormat.format(acc.initialBalance);
+      // _balanceController.text = _currencyFormat.format(acc.initialBalance);
     }
     _balanceController.addListener(_formatBalance);
 

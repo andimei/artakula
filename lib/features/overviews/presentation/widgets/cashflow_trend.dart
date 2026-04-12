@@ -32,7 +32,6 @@ class CashFlowDay {
     this.income = 0,
     this.expense = 0,
   });
-
   double get net => income - expense;
 }
 

@@ -11,6 +11,9 @@ class AccountSnapshotCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accounts = ref.watch(accountProvider);
+
+    final filtered = accounts.toList()
+      ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
     final total = ref.watch(totalBalanceProvider);
 
     final rupiah = NumberFormat.currency(
@@ -65,8 +68,8 @@ class AccountSnapshotCard extends ConsumerWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(12),
-            itemCount: accounts.length,
-            separatorBuilder: (_, __) => Padding(
+            itemCount: filtered.length,
+            separatorBuilder: (_, _) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               child: Divider(
                 height: 1,
@@ -74,7 +77,7 @@ class AccountSnapshotCard extends ConsumerWidget {
               ),
             ),
             itemBuilder: (context, index) {
-              final account = accounts[index];
+              final account = filtered[index];
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 0),

@@ -4,7 +4,7 @@ import '../../data/models/category.dart';
 class CategoryTile extends StatelessWidget {
   final Category category;
   final VoidCallback onTap;
-  final Widget? dragHandle; // ⭐ tambahan
+  final Widget? dragHandle;
 
   const CategoryTile({
     super.key,

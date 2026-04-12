@@ -10,11 +10,16 @@ import '../../controller/account_provider.dart';
 import '../widgets/account_tile.dart';
 import 'package:artakula/features/accounts/presentation/pages/account_form_page.dart';
 
-class AccountsPage extends ConsumerWidget {
+class AccountsPage extends ConsumerStatefulWidget {
   const AccountsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AccountsPage> createState() => _AccountsPageState();
+}
+
+class _AccountsPageState extends ConsumerState<AccountsPage> {
+  @override
+  Widget build(BuildContext context) {
     final accounts = ref.watch(accountProvider);
 
     return Scaffold(
@@ -47,32 +52,96 @@ class AccountsPage extends ConsumerWidget {
                   child: const AccountHeader(),
                 ),
                 Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: accounts.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 3),
-                    itemBuilder: (context, index) {
-                      final account = accounts[index];
-
-                      return Dismissible(
-                        key: ValueKey(account.id),
-                        direction: DismissDirection.endToStart,
-                        background: _deleteBackground(),
-                        onDismissed: (_) {
-                          ref.read(accountProvider.notifier).delete(account);
-                        },
-                        child: AccountTile(
-                          account: account,
-                          onTap: () => _openForm(context, ref, account),
-
-                        ),
-                      );
-                    },
-                  ),
+                  child: _buildList(context, accounts),
                 ),
+                // _buildList(context, accounts),
+                // Expanded(
+                //   child: ListView.separated(
+                //     padding: const EdgeInsets.all(12),
+                //     itemCount: accounts.length,
+                //     separatorBuilder: (_, __) => const SizedBox(height: 3),
+                //     itemBuilder: (context, index) {
+                //       final account = accounts[index];
+
+                //       return Dismissible(
+                //         key: ValueKey(account.id),
+                //         direction: DismissDirection.endToStart,
+                //         background: _deleteBackground(),
+                //         onDismissed: (_) {
+                //           ref.read(accountProvider.notifier).delete(account);
+                //         },
+                //         child: AccountTile(
+                //           account: account,
+                //           onTap: () => _openForm(context, ref, account),
+                //         ),
+                //       );
+                //     },
+                //   ),
+                // ),
               ],
             ),
     );
+  }
+
+  Widget _buildList(
+    BuildContext context,
+    List<Account> accounts,
+  ) {
+    final filtered = accounts.toList()
+      ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
+
+    if (filtered.isEmpty) {
+      return const Center(child: Text('No categories'));
+    }
+
+    return ReorderableListView.builder(
+      buildDefaultDragHandles: false,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 80,
+      ),
+
+      itemCount: filtered.length,
+
+      onReorder: (oldIndex, newIndex) =>
+          _onReorder(filtered, oldIndex, newIndex),
+
+      itemBuilder: (context, index) {
+        final account = filtered[index];
+
+        return AccountTile(
+          key: ValueKey(account.id),
+          account: account,
+
+          dragHandle: ReorderableDragStartListener(
+            index: index,
+            child: const Icon(Icons.dehaze, color: Colors.grey),
+          ),
+          // onTap: () {
+          //   _openForm(context, category, isIncome);
+          // },
+        );
+      },
+    );
+  }
+
+  Future<void> _onReorder(
+    List<Account> list,
+    int oldIndex,
+    int newIndex,
+  ) async {
+    if (newIndex > oldIndex) newIndex--;
+
+    final item = list.removeAt(oldIndex);
+    list.insert(newIndex, item);
+
+    /// update order hanya group ini
+    for (int i = 0; i < list.length; i++) {
+      list[i].order = i;
+    }
+
+    await Future.wait(list.map((c) => c.save()));
+
+    setState(() {});
   }
 
   /// OPEN FORM

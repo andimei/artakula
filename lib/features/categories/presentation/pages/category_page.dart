@@ -40,7 +40,7 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
 
             return AnimatedBuilder(
               animation: tabController,
-              builder: (_, __) {
+              builder: (_, _) {
                 final isIncome = tabController.index == 1;
 
                 return FloatingActionButton(

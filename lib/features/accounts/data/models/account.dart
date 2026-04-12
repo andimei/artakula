@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'account.g.dart';
@@ -11,15 +12,24 @@ class Account extends HiveObject {
   String name;
 
   @HiveField(2)
-  int initialBalance;
+  int? iconCodePoint;
+
+  @HiveField(3)
+  int? order;
 
   Account({
     required this.id,
     required this.name,
-    this.initialBalance = 0,
+    this.iconCodePoint,
+    this.order,
   });
 
   factory Account.empty() {
     return Account(id: '', name: 'Unknown');
   }
+
+  IconData get icon => IconData(
+    iconCodePoint ?? Icons.account_balance_wallet.codePoint,
+    fontFamily: 'MaterialIcons',
+  );
 }

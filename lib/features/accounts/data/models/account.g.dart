@@ -19,20 +19,23 @@ class AccountAdapter extends TypeAdapter<Account> {
     return Account(
       id: fields[0] as String,
       name: fields[1] as String,
-      initialBalance: fields[2] as int,
+      iconCodePoint: fields[2] as int?,
+      order: fields[3] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Account obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.initialBalance);
+      ..write(obj.iconCodePoint)
+      ..writeByte(3)
+      ..write(obj.order);
   }
 
   @override

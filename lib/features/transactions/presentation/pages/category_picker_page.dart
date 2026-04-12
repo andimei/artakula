@@ -49,7 +49,7 @@ class CategoryPickerPage extends ConsumerWidget {
 
       body: ListView.separated(
         itemCount: filtered.length,
-        separatorBuilder: (_, __) => const Divider(
+        separatorBuilder: (_, _) => const Divider(
           height: 1,
           color: Color.fromARGB(255, 226, 226, 226),
           indent: 18,
