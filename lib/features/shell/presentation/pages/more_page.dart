@@ -1,4 +1,5 @@
 import 'package:artakula/features/accounts/presentation/pages/account_page.dart';
+import 'package:artakula/features/budgets/presentation/pages/budget_page.dart';
 import 'package:flutter/material.dart';
 import '../../../categories/presentation/pages/category_page.dart';
 
@@ -11,7 +12,7 @@ class MorePage extends StatelessWidget {
       children: [
         _menuItem(
           context,
-          icon: Icons.wallet,
+          icon: Icons.account_balance_wallet,
           title: "Accounts",
           onTap: () {
             Navigator.push(
@@ -32,6 +33,20 @@ class MorePage extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (_) => const CategoriesPage(),
+              ),
+            );
+          },
+        ),
+
+        _menuItem(
+          context,
+          icon: Icons.pie_chart,
+          title: "Butgets",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const BudgetsPage(),
               ),
             );
           },

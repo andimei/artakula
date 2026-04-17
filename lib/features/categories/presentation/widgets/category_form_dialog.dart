@@ -164,10 +164,11 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
-          itemCount: categoryIcons.length,
+          itemCount: _isIncome? incomeIcons.length : categoryIcons.length,
+          // itemCount: categoryIcons.length,
           itemBuilder: (context, index) {
-            final icon = categoryIcons[index];
-
+            // final icon = categoryIcons[index];
+            final icon = _isIncome? incomeIcons[index] : categoryIcons[index];
             return InkWell(
               onTap: () {
                 setState(() => _selectedIcon = icon);

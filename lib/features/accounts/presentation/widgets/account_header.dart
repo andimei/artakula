@@ -19,7 +19,7 @@ class AccountHeader extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
-        vertical: 18,
+        vertical: 4,
       ),
       color: Colors.grey.shade200,
       child: Row(
@@ -40,14 +40,14 @@ class AccountHeader extends ConsumerWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 6),
+          // const SizedBox(width: 6),
 
           // const Icon(
           //   Icons.chevron_right,
           //   size: 18,
           //   color: Colors.grey,
           // ),
-          const SizedBox(width: 18),
+          const SizedBox(width: 24),
         ],
       ),
     );

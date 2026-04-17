@@ -1,4 +1,4 @@
-import 'package:artakula/features/accounts/controller/account_provider.dart';
+import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/transactions/data/transaction_hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

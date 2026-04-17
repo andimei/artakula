@@ -2,13 +2,10 @@
 import 'package:artakula/features/accounts/data/models/account.dart';
 import 'package:artakula/features/accounts/presentation/widgets/account_from_dialog.dart';
 import 'package:artakula/features/accounts/presentation/widgets/account_header.dart';
+import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../controller/account_provider.dart';
-// import '../widgets/account_header.dart';
-// import '../widgets/account_form.dart';
 import '../widgets/account_tile.dart';
-import 'package:artakula/features/accounts/presentation/pages/account_form_page.dart';
 
 class AccountsPage extends ConsumerStatefulWidget {
   const AccountsPage({super.key});
@@ -28,15 +25,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         heroTag: null,
 
         onPressed: () => _openForm(context, ref, null),
-        // onPressed: () {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       // builder: (_) => AccountFormPage(),
-        //       builder: (_) => AccountFormDialog(),
-        //     ),
-        //   );
-        // },
         child: const Icon(Icons.add),
       ),
       body: accounts.isEmpty
@@ -54,30 +42,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                 Expanded(
                   child: _buildList(context, accounts),
                 ),
-                // _buildList(context, accounts),
-                // Expanded(
-                //   child: ListView.separated(
-                //     padding: const EdgeInsets.all(12),
-                //     itemCount: accounts.length,
-                //     separatorBuilder: (_, __) => const SizedBox(height: 3),
-                //     itemBuilder: (context, index) {
-                //       final account = accounts[index];
-
-                //       return Dismissible(
-                //         key: ValueKey(account.id),
-                //         direction: DismissDirection.endToStart,
-                //         background: _deleteBackground(),
-                //         onDismissed: (_) {
-                //           ref.read(accountProvider.notifier).delete(account);
-                //         },
-                //         child: AccountTile(
-                //           account: account,
-                //           onTap: () => _openForm(context, ref, account),
-                //         ),
-                //       );
-                //     },
-                //   ),
-                // ),
               ],
             ),
     );
@@ -116,9 +80,9 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             index: index,
             child: const Icon(Icons.dehaze, color: Colors.grey),
           ),
-          // onTap: () {
-          //   _openForm(context, category, isIncome);
-          // },
+          onTap: () {
+            _openForm(context, ref, account);
+          },
         );
       },
     );
@@ -155,18 +119,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
       builder: (_) => AccountFormDialog(
         account: account,
       ),
-    );
-  }
-
-  Widget _deleteBackground() {
-    return Container(
-      alignment: Alignment.centerRight,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.red.shade800,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Icon(Icons.delete, color: Colors.white),
     );
   }
 }

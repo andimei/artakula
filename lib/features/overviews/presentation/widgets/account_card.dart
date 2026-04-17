@@ -1,5 +1,5 @@
-import 'package:artakula/features/accounts/controller/account_provider.dart';
 import 'package:artakula/features/accounts/data/models/account.dart';
+import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/transactions/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,11 +10,9 @@ class AccountSnapshotCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accounts = ref.watch(accountProvider);
-
-    final filtered = accounts.toList()
-      ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
     final total = ref.watch(totalBalanceProvider);
+
+    final accounts = ref.watch(sortedAccountProvider);
 
     final rupiah = NumberFormat.currency(
       locale: 'id_ID',
@@ -68,7 +66,7 @@ class AccountSnapshotCard extends ConsumerWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(12),
-            itemCount: filtered.length,
+            itemCount: accounts.length,
             separatorBuilder: (_, _) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               child: Divider(
@@ -77,11 +75,14 @@ class AccountSnapshotCard extends ConsumerWidget {
               ),
             ),
             itemBuilder: (context, index) {
-              final account = filtered[index];
+              final account = accounts[index];
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 0),
-                child: AccountItem(account: account),
+                child: AccountItem(
+                  key: ValueKey(account.id),
+                  account: account,
+                ),
               );
             },
           ),
@@ -117,7 +118,8 @@ class AccountItem extends ConsumerWidget {
         children: [
           CircleAvatar(
             backgroundColor: Colors.grey.shade300,
-            child: const Icon(Icons.account_balance_wallet),
+            // child: const Icon(Icons.account_balance_wallet),
+            child: Icon(account.icon),
           ),
           const SizedBox(width: 10),
           Expanded(

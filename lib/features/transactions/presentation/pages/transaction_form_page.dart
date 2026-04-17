@@ -1,5 +1,5 @@
-import 'package:artakula/features/accounts/controller/account_provider.dart';
 import 'package:artakula/features/accounts/data/models/account.dart';
+import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/categories/data/models/category.dart';
 import 'package:artakula/features/transactions/presentation/pages/account_picker_page.dart';
 import 'package:artakula/features/transactions/presentation/pages/category_picker_page.dart';

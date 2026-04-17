@@ -1,6 +1,6 @@
 import 'package:artakula/core/theme/theme_ext.dart';
-import 'package:artakula/features/accounts/controller/account_provider.dart';
 import 'package:artakula/features/accounts/data/models/account.dart';
+import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/transaction.dart';

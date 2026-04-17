@@ -62,11 +62,34 @@ class AccountTile extends ConsumerWidget {
 
               /// NAME
               Expanded(
-                child: Text(
-                  account.name,
-                  style: const TextStyle(fontSize: 16),
+                // child: Text(
+                //   account.name,
+                //   style: const TextStyle(fontSize: 16),
+                // ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        account.name,
+                        style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      ),
+                    ),
+
+                    Text(
+                      rupiah.format(balance),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(width: 12),
               dragHandle ??
                   const Icon(
                     Icons.dehaze,

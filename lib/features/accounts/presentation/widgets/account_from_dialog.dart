@@ -1,4 +1,6 @@
 // import 'package:artakula/features/accounts/';
+import 'package:artakula/features/accounts/data/account_icons.dart';
+import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/categories/providers/category_provider.dart';
 import 'package:artakula/features/transactions/data/models/transaction.dart';
 import 'package:artakula/features/transactions/providers/transaction_provider.dart';
@@ -9,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/models/account.dart';
-import '../../controller/account_provider.dart';
+
 
 class AccountFormDialog extends ConsumerStatefulWidget {
   final Account? account;
@@ -29,7 +31,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
 
   final _currencyFormat = NumberFormat.decimalPattern('id_ID');
 
-  final IconData _selectedIcon = Icons.account_balance_wallet;
+  IconData _selectedIcon = Icons.account_balance_wallet;
 
   @override
   void initState() {
@@ -42,7 +44,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
     if (acc != null) {
       /// EDIT MODE
       _nameController.text = acc.name;
-      // _selectedIcon = acc.icon;
+      _selectedIcon = acc.icon;
     }
   }
 
@@ -63,7 +65,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
         children: [
           /// ICON PICKER
           GestureDetector(
-            // onTap: _pickIcon,
+            onTap: _pickIcon,
             child: Container(
               width: 56,
               height: 56,
@@ -149,7 +151,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
         Account(
           id: accountId,
           name: name,
-          // iconCodePoint: _selectedIcon.codePoint,
+          iconCodePoint: _selectedIcon.codePoint,
         ),
       );
 
@@ -178,6 +180,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
       final account = widget.account!;
 
       account.name = name;
+      account.iconCodePoint = _selectedIcon.codePoint;
       accountNotifier.update(account);
     }
 
@@ -241,38 +244,38 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
     );
   }
 
-  //   /// ICON PICKER
-  //   void _pickIcon() {
-  //     showModalBottomSheet(
-  //       context: context,
-  //       builder: (_) {
-  //         return GridView.builder(
-  //           padding: const EdgeInsets.all(16),
-  //           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-  //             crossAxisCount: 5,
-  //             crossAxisSpacing: 12,
-  //             mainAxisSpacing: 12,
-  //           ),
-  //           itemCount: accountIcons.length,
-  //           itemBuilder: (context, index) {
-  //             final icon = accountIcons[index];
+  /// ICON PICKER
+  void _pickIcon() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: accountIcons.length,
+          itemBuilder: (context, index) {
+            final icon = accountIcons[index];
 
-  //             return InkWell(
-  //               onTap: () {
-  //                 setState(() => _selectedIcon = icon);
-  //                 Navigator.pop(context);
-  //               },
-  //               child: Container(
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.grey.shade200,
-  //                   borderRadius: BorderRadius.circular(12),
-  //                 ),
-  //                 child: Icon(icon),
-  //               ),
-  //             );
-  //           },
-  //         );
-  //       },
-  //     );
-  //   }
+            return InkWell(
+              onTap: () {
+                setState(() => _selectedIcon = icon);
+                Navigator.pop(context);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }

@@ -7,8 +7,6 @@ Future<void> migrateCategoryOrder(Box<Category> box) async {
   /// cek apakah migration diperlukan (sementara tambahan order)
   final needMigration = categories.any((c) => c.order == null);
 
-  print(needMigration);
-
   if (!needMigration) return;
 
   /// pisahkan group

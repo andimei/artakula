@@ -1,13 +1,9 @@
 import 'package:artakula/features/accounts/presentation/widgets/account_from_dialog.dart';
+import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/transactions/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-
-// import '../../providers/account_provider.dart';
-import '../../../accounts/controller/account_provider.dart';
-// import '../../data/models/account.dart';
-// import '../../../accounts/data/models/account.dart';
 
 class AccountPickerPage extends ConsumerWidget {
   final String? selectedId;
@@ -20,6 +16,14 @@ class AccountPickerPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accounts = ref.watch(accountProvider);
+
+    final filtered = accounts.toList()
+      ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
+    // accounts
+    //   ..sort(
+    //     (a, b) => (a.order ?? 0).compareTo(b.order ?? 0),
+    //   );
+
     final rupiah = NumberFormat.currency(
       locale: 'id_ID',
       symbol: '',
@@ -39,7 +43,7 @@ class AccountPickerPage extends ConsumerWidget {
       ),
 
       body: ListView.separated(
-        itemCount: accounts.length,
+        itemCount: filtered.length,
         separatorBuilder: (_, __) => const Divider(
           height: 1,
           color: Color.fromARGB(255, 226, 226, 226),
@@ -47,7 +51,7 @@ class AccountPickerPage extends ConsumerWidget {
           endIndent: 18,
         ),
         itemBuilder: (context, index) {
-          final acc = accounts[index];
+          final acc = filtered[index];
           final balance = ref.watch(accountBalanceProvider(acc.id));
           final isSelected = acc.id == selectedId;
 
@@ -65,8 +69,8 @@ class AccountPickerPage extends ConsumerWidget {
                 color: Colors.amber,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.account_balance_wallet,
+              child: Icon(
+                acc.icon,
                 color: Colors.white,
               ),
             ),
