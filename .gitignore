@@ -83,3 +83,4 @@ GoogleService-Info.plist
 # Env / Secret
 # =========================
 .env
+/pubspec.lock
