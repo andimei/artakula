@@ -1,6 +1,7 @@
 import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/accounts/data/models/account.dart';
 import 'package:artakula/features/accounts/provider/account_provider.dart';
+import 'package:artakula/shared/utils/currency_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/transaction.dart';
@@ -36,100 +37,105 @@ class TransactionTile extends ConsumerWidget {
     }
 
     Category? category;
-
     if (transaction.categoryId != null) {
-      if (transaction.categoryId != null) {
-        category = categories.firstWhereOrNull(
-          (c) => c.id == transaction.categoryId,
-        );
-      }
+      category = categories.firstWhereOrNull(
+        (c) => c.id == transaction.categoryId,
+      );
     }
 
-    final color = isIncome
+    final amountColor = isIncome
         ? context.semantic.income
         : isExpense
-        ? context.semantic.expense
-        : Colors.black;
+            ? context.semantic.expense
+            : context.colors.onSurface;
 
-    final sign = isIncome
-        ? '+'
+    final iconBgColor = isIncome
+        ? context.semantic.income.withValues(alpha: 0.12)
         : isExpense
-        ? '-'
-        : '';
+            ? context.semantic.expense.withValues(alpha: 0.12)
+            : context.colors.primaryContainer;
+
+    final iconColor = isIncome
+        ? context.semantic.income
+        : isExpense
+            ? context.semantic.expense
+            : context.colors.onPrimaryContainer;
+
+    final sign = isIncome ? '+' : isExpense ? '-' : '';
 
     final title = isTransfer ? 'Transfer' : category?.name ?? 'Transaction';
-
-    // final subtitle = isTransfer
-    //     ? '${transaction.fromAccountId} to ${transaction.toAccountId}'
-    //     : transaction.fromAccountId;
 
     final subtitle = isTransfer
         ? '${getAccountName(transaction.fromAccountId)} → ${getAccountName(transaction.toAccountId!)}'
         : getAccountName(transaction.fromAccountId);
 
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: context.colors.surfaceContainerLowest,
-          // borderRadius: BorderRadius.circular(12),
-          border: Border(
-            bottom: BorderSide(
-              color: context.colors.outlineVariant,
-              width: 1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: context.colors.outlineVariant.withValues(alpha: 0.3),
             ),
           ),
-        ),
-        child: Row(
-          children: [
-            /// Icon
-            CircleAvatar(
-              backgroundColor: context.colors.surface,
-              child: Icon(
-                isTransfer ? Icons.swap_horiz : category?.icon,
-                color: context.colors.primary,
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: iconBgColor,
+                child: Icon(
+                  isTransfer ? Icons.swap_horiz : category?.icon ?? Icons.receipt,
+                  color: iconColor,
+                  size: 20,
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
 
-            const SizedBox(width: 12),
-
-            /// Text
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: context.colors.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.colors.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            /// Amount
-            Text(
-              "$sign${_formatCurrency(transaction.amount)}",
-              style: TextStyle(
-                color: color,
-                // fontWeight: FontWeight.bold,
+              Text(
+                "$sign${formatRupiah(transaction.amount)}",
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  color: amountColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  String _formatCurrency(int value) {
-    return "Rp${value.toString().replaceAllMapped(
-      RegExp(r'\B(?=(\d{3})+(?!\d))'),
-      (match) => '.',
-    )}";
   }
 }

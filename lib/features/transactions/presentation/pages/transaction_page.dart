@@ -1,6 +1,6 @@
 import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/transactions/data/models/transaction.dart';
-// import 'package:artakula/features/transactions/providers/transaction_filter_provider.dart';
+import 'package:artakula/shared/utils/currency_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +19,13 @@ class TransactionsPage extends ConsumerStatefulWidget {
 
 class _TransactionsPageState extends ConsumerState<TransactionsPage> {
   DateTime _currentMonth = DateTime.now();
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,23 +35,16 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     final expense = ref.watch(totalExpenseProvider(_currentMonth));
     final balance = ref.watch(balanceProvider(_currentMonth));
 
-    final monthTxs = txs.where((tx) {
-      return tx.date.year == _currentMonth.year &&
-          tx.date.month == _currentMonth.month;
-    }).toList();
-
     return Scaffold(
       backgroundColor: context.colors.surfaceContainerLowest,
 
-      /// APPBAR
       appBar: AppBar(
         title: const Text("Transactions"),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {
-              // next step search delegate
-            },
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.tune),
@@ -62,7 +62,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: context.colors.primary,
-        child: const Icon(Icons.edit),
+        child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
             context,
@@ -76,11 +76,12 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
       body: Column(
         children: [
           _monthSwitcher(context),
-          _summary(context, income, expense, balance),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
+          _summaryCard(context, income, expense, balance),
+          const SizedBox(height: 12),
 
           Expanded(
-            child: _buildGroupedList(monthTxs),
+            child: _buildGroupedList(txs),
           ),
         ],
       ),
@@ -100,69 +101,68 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
   }
 
   String get _monthLabel {
-    const months = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
-
-    return "${months[_currentMonth.month - 1]} ${_currentMonth.year}";
+    return DateFormat('MMMM yyyy', 'id_ID').format(_currentMonth);
   }
 
   /// MONTH SWITCHER
   Widget _monthSwitcher(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
-      color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: _prevMonth,
-          ),
-
-          GestureDetector(
-            // onTap: _pickMonth,
-            onTap: () async {
-              final picked = await openMonthYearPicker(
-                context,
-                _currentMonth,
-              );
-
-              if (!mounted || picked == null) return;
-
-              setState(() {
-                _currentMonth = picked;
-              });
-            },
-            child: Text(
-              _monthLabel,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: context.colors.primary,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.chevron_left_rounded),
+              onPressed: _prevMonth,
+              style: IconButton.styleFrom(
+                foregroundColor: context.colors.primary,
               ),
             ),
-          ),
 
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: _nextMonth,
-          ),
-        ],
+            GestureDetector(
+              onTap: () async {
+                final picked = await openMonthYearPicker(
+                  context,
+                  _currentMonth,
+                );
+                if (!mounted || picked == null) return;
+                setState(() => _currentMonth = picked);
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _monthLabel,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.onSurface,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 18,
+                    color: context.colors.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+
+            IconButton(
+              icon: const Icon(Icons.chevron_right_rounded),
+              onPressed: _nextMonth,
+              style: IconButton.styleFrom(
+                foregroundColor: context.colors.primary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -180,12 +180,10 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text("Select Month"),
-
+              title: const Text("Pilih Bulan"),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  /// YEAR PICKER
                   DropdownButton<int>(
                     value: selectedYear,
                     items: List.generate(
@@ -202,57 +200,47 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                       setState(() => selectedYear = val!);
                     },
                   ),
-
                   const SizedBox(height: 12),
-
-                  /// MONTH GRID
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: List.generate(12, (index) {
                       final month = index + 1;
-
                       final isSelected = month == selectedMonth;
-
                       return ChoiceChip(
                         showCheckmark: false,
                         label: SizedBox(
-                          width: 28, 
+                          width: 28,
                           child: Center(
-                            child: Text(
-                              [
-                                "Jan",
-                                "Feb",
-                                "Mar",
-                                "Apr",
-                                "Mei",
-                                "Jun",
-                                "Jul",
-                                "Agu",
-                                "Sep",
-                                "Okt",
-                                "Nov",
-                                "Des",
-                              ][index],
-                            ),
+                            child: Text([
+                              "Jan",
+                              "Feb",
+                              "Mar",
+                              "Apr",
+                              "Mei",
+                              "Jun",
+                              "Jul",
+                              "Agu",
+                              "Sep",
+                              "Okt",
+                              "Nov",
+                              "Des",
+                            ][index]),
                           ),
                         ),
                         selected: isSelected,
                         onSelected: (_) {
-                          setState(() {
-                            selectedMonth = month;
-                          });
+                          setState(() => selectedMonth = month);
                         },
                       );
                     }),
                   ),
                 ],
               ),
-
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Cancel"),
+                  child: const Text("Batal"),
                 ),
                 FilledButton(
                   onPressed: () {
@@ -261,7 +249,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                       DateTime(selectedYear, selectedMonth),
                     );
                   },
-                  child: const Text("OK"),
+                  child: const Text("Pilih"),
                 ),
               ],
             );
@@ -271,65 +259,94 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     );
   }
 
-  /// SUMMARY
-  Widget _summary(BuildContext context, int income, int expense, int balance) {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(
-        vertical: 12,
-        horizontal: 16,
-      ),
-      child: Column(
-        children: [
-          _row("Income", "+", income, context.semantic.income),
-          _row("Expense", "-", expense, context.semantic.expense),
-          Divider(color: context.colors.outlineVariant, height: 2),
-          _row(
-            "Total",
-            "",
-            balance,
-            Colors.black,
-            titleStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-            valueStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              // fontSize: 16,
-              color: Colors.black,
-            ),
+  /// SUMMARY CARD
+  Widget _summaryCard(
+      BuildContext context, int income, int expense, int balance) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: context.colors.outlineVariant.withValues(alpha: 0.3),
           ),
-        ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          children: [
+            _summaryRow(
+              context,
+              "Pemasukan",
+              "+",
+              income,
+              context.semantic.income,
+              Icons.arrow_upward_rounded,
+            ),
+            const SizedBox(height: 8),
+            _summaryRow(
+              context,
+              "Pengeluaran",
+              "-",
+              expense,
+              context.semantic.expense,
+              Icons.arrow_downward_rounded,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Divider(
+                color: context.colors.outlineVariant.withValues(alpha: 0.4),
+                height: 1,
+              ),
+            ),
+            _summaryRow(
+              context,
+              "Saldo",
+              "",
+              balance,
+              context.colors.onSurface,
+              Icons.account_balance_wallet_rounded,
+              isTotal: true,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _row(
+  Widget _summaryRow(
+    BuildContext context,
     String title,
     String sign,
     int value,
-    Color color, {
-    TextStyle? titleStyle,
-    TextStyle? valueStyle,
+    Color color,
+    IconData icon, {
+    bool isTotal = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: titleStyle,
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: color.withValues(alpha: 0.7)),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: isTotal ? 13 : 13,
+            fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400,
+            color: context.colors.onSurfaceVariant,
           ),
-          Text(
-            _formatCurrency(sign, value),
-            style:
-                valueStyle ??
-                TextStyle(
-                  color: color,
-                ),
+        ),
+        const Spacer(),
+        Text(
+          "$sign${formatRupiah(value)}",
+          textAlign: TextAlign.end,
+          style: TextStyle(
+            color: color,
+            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
+            fontSize: isTotal ? 15 : 14,
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -338,20 +355,18 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
 
     for (final tx in txs) {
       final date = tx.dateOnly;
-
       grouped.putIfAbsent(date, () => []);
       grouped[date]!.add(tx);
     }
 
-    /// SORT transaksi dalam tiap hari
     for (final list in grouped.values) {
       list.sort((a, b) => b.date.compareTo(a.date));
     }
 
-    /// SORT hari terbaru di atas
     final keys = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
     return ListView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.only(bottom: 80),
       itemCount: keys.length,
       itemBuilder: (context, index) {
@@ -366,28 +381,28 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _dayHeader(context, day, total),
-            Divider(
-              color: context.colors.outlineVariant,
-              height: 2,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _dayHeader(context, day, total),
             ),
-
-            /// newest transaction first
+            const SizedBox(height: 8),
             ...items.map(
-              (tx) => TransactionTile(
-                transaction: tx,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => TransactionFormPage(transaction: tx),
-                    ),
-                  );
-                },
+              (tx) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: TransactionTile(
+                  transaction: tx,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TransactionFormPage(transaction: tx),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-
-            const SizedBox(height: 16),
+            const SizedBox(height: 4),
           ],
         );
       },
@@ -397,54 +412,53 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
   Widget _dayHeader(BuildContext context, DateTime day, int total) {
     final date = DateFormat('d').format(day);
     final weekday = DateFormat('EEEE', 'id_ID').format(day);
-    final monthYear = DateFormat('MMMM yyyy', 'id_ID').format(day);
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      // color: context.colors.surfaceContainer,
-      color: context.colors.surfaceContainerLow,
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Text(
-                date,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  // color: context.colors.primary,
-                  // color: Colors.black,
-                ),
+          Container(
+            width: 36,
+            height: 36,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: context.colors.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              date,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: context.colors.onSurfaceVariant,
               ),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    weekday,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    monthYear,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-          Text(_formatCurrency("", total)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              weekday,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 13,
+                color: context.colors.onSurfaceVariant,
+              ),
+            ),
+          ),
+          Text(
+            formatRupiah(total),
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: total >= 0
+                  ? context.semantic.income
+                  : context.semantic.expense,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
         ],
       ),
     );
-  }
-
-  String _formatCurrency(String sign, int value) {
-    return "${sign}Rp${value.toString().replaceAllMapped(
-      RegExp(r'\B(?=(\d{3})+(?!\d))'),
-      (match) => '.',
-    )}";
   }
 }
