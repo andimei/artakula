@@ -17,27 +17,28 @@ class _BudgetsPageState extends ConsumerState<BudgetsPage> {
       appBar: AppBar(title: const Text('Budgets')),
       floatingActionButton: FloatingActionButton(
         heroTag: null,
+        onPressed: () {},
 
-        onPressed: () => _openForm(context, ref, null),
+        // onPressed: () => _openForm(context, ref, null),
         child: const Icon(Icons.add),
       ),
-      body: accounts.isEmpty
-          ? const Center(child: Text('No accounts yet'))
-          : Column(
-              children: [
-                Container(
-                  // padding: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 2,
-                  ),
-                  child: const AccountHeader(),
-                ),
-                Expanded(
-                  child: _buildList(context, accounts),
-                ),
-              ],
-            ),
+      //   body: accounts.isEmpty
+      //       ? const Center(child: Text('No accounts yet'))
+      //       : Column(
+      //           children: [
+      //             Container(
+      //               // padding: const EdgeInsets.all(12),
+      //               padding: const EdgeInsets.symmetric(
+      //                 horizontal: 12,
+      //                 vertical: 2,
+      //               ),
+      //               child: const AccountHeader(),
+      //             ),
+      //             Expanded(
+      //               child: _buildList(context, accounts),
+      //             ),
+      //           ],
+      // ),
     );
   }
 

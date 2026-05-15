@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'budget.g.dart';
@@ -48,4 +48,3 @@ enum BudgetPeriod {
   @HiveField(2)
   yearly,
 }
-
