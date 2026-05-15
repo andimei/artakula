@@ -59,9 +59,5 @@ final budgetOverviewProvider =
       remaining: remaining,
     );
   }).toList()
-    ..sort((a, b) {
-      if (a.isOverspent != b.isOverspent) return a.isOverspent ? -1 : 1;
-      return (a.spent / a.budget.amount)
-          .compareTo(b.spent / b.budget.amount);
-    });
+    ..sort((a, b) => (a.budget.order ?? 0).compareTo(b.budget.order ?? 0));
 });
