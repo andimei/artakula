@@ -3,11 +3,10 @@ import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/categories/data/models/category.dart';
 import 'package:artakula/features/transactions/presentation/pages/account_picker_page.dart';
 import 'package:artakula/features/transactions/presentation/pages/category_picker_page.dart';
-
 import 'package:artakula/features/transactions/presentation/widgets/fintech_field.dart';
-
 import 'package:artakula/features/transactions/presentation/widgets/numeric_keypad.dart';
 import 'package:artakula/features/transactions/presentation/widgets/transaction_type.dart';
+import 'package:artakula/shared/utils/currency_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,11 +37,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
   String get formattedAmount {
     if (_amount == 0) return "0";
-
-    return _amount.toString().replaceAllMapped(
-      RegExp(r'\B(?=(\d{3})+(?!\d))'),
-      (match) => '.',
-    );
+    return formatNumber(_amount);
   }
 
   String? _categoryId;
@@ -236,46 +231,6 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     );
   }
 
-  // Widget _accountCategoryRow() {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(horizontal: 16),
-  //     child: Row(
-  //       children: [
-  //         Expanded(
-  //           child: FintechField(
-  //             label: "Account",
-  //             value: "Dompet",
-  //             icon: Icons.account_balance_wallet_outlined,
-  //             onTap: () async {
-  //               final account = await openAccountPicker(
-  //                 context,
-  //                 selectedId: _toAccountId,
-  //               );
-
-  //               if (account != null) {
-  //                 setState(() {
-  //                   _toAccountId = account.id;
-  //                 });
-  //               }
-  //             },
-  //           ),
-  //         ),
-
-  //         const SizedBox(width: 6),
-
-  //         Expanded(
-  //           child: FintechField(
-  //             label: "Category",
-  //             value: "Makan",
-  //             icon: Icons.category_outlined,
-  //             onTap: () {},
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _accountCategoryRow(WidgetRef ref, bool isTransfer) {
     final accounts = ref.watch(accountProvider);
     final categories = ref.watch(categoryProvider);
@@ -435,15 +390,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
             TextField(
               controller: _noteController,
               maxLength: 30,
-              // buildCounter:
-              //     (
-              //       context, {
-              //       required int currentLength,
-              //       required bool isFocused,
-              //       required int? maxLength,
-              //     }) => null,
               decoration: const InputDecoration(
-                // hintText: "Optional note...",
                 border: InputBorder.none,
                 isDense: true,
               ),
@@ -478,68 +425,6 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
     return "$hour:$minute";
   }
-
-  // Widget _saveButton() {
-  //   final amount = int.tryParse(formattedAmount) ?? 0;
-
-  //   final canSave =
-  //       amount > 0 &&
-  //       _fromAccountId != null &&
-  //       (_type == TransactionType.transfer || _categoryId != null);
-
-  //   return SafeArea(
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(16),
-  //       child: SizedBox(
-  //         width: double.infinity,
-  //         child: FilledButton(
-  //           onPressed: canSave ? _save : null,
-  //           child: const Text("Save Transaction"),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _numericKeypad() {
-  //   return Container(
-  //     padding: const EdgeInsets.only(bottom: 8, left: 2, right: 2),
-  //     color: context.colors.surfaceContainerHighest,
-  //     child: Column(
-  //       // mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         // KeypadButton(label: '2', onTap: (){})
-  //         _keypadRow(["7", "8", "9"]),
-  //         _keypadRow(["4", "5", "6"]),
-  //         _keypadRow(["1", "2", "3"]),
-  //         _keypadRow([",", "0", "del"]),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _keypadRow(List<String> keys) {
-  //   return Row(
-  //     children: keys.map((key) {
-  //       return Expanded(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(1),
-  //           child: SizedBox(
-  //             height: 64,
-  //             child: KeypadButton(
-  //               label: key,
-  //               onTap: () {
-  //                 if (key == ",") return; // optional decimal
-  //                 _onKeyTap(key);
-  //               },
-  //               onLongpress: _clearAmount,
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     }).toList(),
-  //   );
-  // }
 
   void _onKeyTap(String key) {
     HapticFeedback.lightImpact();
@@ -654,7 +539,6 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
     final notifier = ref.read(transactionProvider.notifier);
 
-    /// ===== ADD =====
     if (widget.transaction == null) {
       final tx = Transaction(
         id: const Uuid().v4(),
@@ -668,9 +552,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       );
 
       notifier.add(tx);
-    }
-    /// ===== UPDATE  =====
-    else {
+    } else {
       final tx = widget.transaction!;
 
       tx
@@ -679,8 +561,6 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
         ..type = _type
         ..categoryId = _categoryId
         ..date = _selectedDate;
-
-      ref.read(transactionProvider.notifier).update(tx);
 
       notifier.update(tx);
     }

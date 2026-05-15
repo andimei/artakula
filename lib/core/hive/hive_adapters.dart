@@ -29,7 +29,6 @@ Future<void> registerHiveAdapters() async {
   await _openBox<Category>(HiveBoxes.categories);
   await _openBox<Transaction>(HiveBoxes.transactions);
 
-  // await migrateCategoryOrder(HiveBoxes.categoryBox);
 }
 
 Future<Box<T>> _openBox<T>(String name) async {

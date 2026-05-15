@@ -26,8 +26,6 @@ class AppDrawer extends ConsumerWidget {
           const DrawerHeader(
             child: Text('Settings', style: TextStyle(fontSize: 20)),
           ),
-
-          /// 🔥 Theme toggle row
           ListTile(
             title: const Text('Theme'),
             trailing: IconButton(
@@ -42,70 +40,3 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 }
-
-// class AppDrawer extends StatelessWidget {
-//   final ThemeMode themeMode;
-//   final ValueChanged<ThemeMode> onThemeChanged;
-
-//   const AppDrawer({
-//     super.key,
-//     required this.themeMode,
-//     required this.onThemeChanged,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Drawer(
-//       child: ListView(
-//         padding: EdgeInsets.zero,
-//         children: [
-//           DrawerHeader(
-//             decoration: BoxDecoration(
-//               color: Theme.of(context).colorScheme.primary,
-//             ),
-//             child: const Text(
-//               'Settings',
-//               style: TextStyle(color: Colors.white, fontSize: 20),
-//             ),
-//           ),
-
-//           ListTile(
-//             leading: const Icon(Icons.brightness_auto),
-//             title: const Text('System Theme'),
-//             trailing: themeMode == ThemeMode.system
-//                 ? const Icon(Icons.check)
-//                 : null,
-//             onTap: () {
-//               onThemeChanged(ThemeMode.system);
-//               Navigator.pop(context);
-//             },
-//           ),
-
-//           ListTile(
-//             leading: const Icon(Icons.light_mode),
-//             title: const Text('Light Mode'),
-//             trailing: themeMode == ThemeMode.light
-//                 ? const Icon(Icons.check)
-//                 : null,
-//             onTap: () {
-//               onThemeChanged(ThemeMode.light);
-//               Navigator.pop(context);
-//             },
-//           ),
-
-//           ListTile(
-//             leading: const Icon(Icons.dark_mode),
-//             title: const Text('Dark Mode'),
-//             trailing: themeMode == ThemeMode.dark
-//                 ? const Icon(Icons.check)
-//                 : null,
-//             onTap: () {
-//               onThemeChanged(ThemeMode.dark);
-//               Navigator.pop(context);
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

@@ -40,64 +40,8 @@ class AccountHeader extends ConsumerWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          // const SizedBox(width: 6),
-
-          // const Icon(
-          //   Icons.chevron_right,
-          //   size: 18,
-          //   color: Colors.grey,
-          // ),
-          const SizedBox(width: 24),
         ],
       ),
     );
   }
 }
-
-// class AccountsHeader extends StatelessWidget {
-//   const AccountsHeader({
-//     super.key,
-//     required this.onAdd,
-//     this.onFilter,
-//     this.onSettings,
-//   });
-
-//   final VoidCallback onAdd;
-//   final VoidCallback? onFilter;
-//   final VoidCallback? onSettings;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-//       child: Row(
-//         children: [
-//           const Text(
-//             'Accounts',
-//             style: TextStyle(
-//               fontSize: 18,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//           const Spacer(),
-
-//           IconButton(
-//             icon: const Icon(Icons.add),
-//             tooltip: 'Add Account',
-//             onPressed: onAdd,
-//           ),
-//           IconButton(
-//             icon: const Icon(Icons.filter_list),
-//             tooltip: 'Filter',
-//             onPressed: onFilter,
-//           ),
-//           IconButton(
-//             icon: const Icon(Icons.settings),
-//             tooltip: 'Settings',
-//             onPressed: onSettings,
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

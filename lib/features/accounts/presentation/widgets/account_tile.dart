@@ -44,12 +44,10 @@ class AccountTile extends ConsumerWidget {
           ),
           child: Row(
             children: [
-              // icon
               Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  // color: acc.color,
                   color: Colors.amber,
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -60,12 +58,7 @@ class AccountTile extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
 
-              /// NAME
               Expanded(
-                // child: Text(
-                //   account.name,
-                //   style: const TextStyle(fontSize: 16),
-                // ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -102,51 +95,5 @@ class AccountTile extends ConsumerWidget {
       ),
     );
 
-    // return InkWell(
-    //   onTap: onTap,
-    //   child: Container(
-    //     padding: const EdgeInsets.symmetric(
-    //       horizontal: 16,
-    //       vertical: 14,
-    //     ),
-    //     decoration: const BoxDecoration(
-    //       color: Colors.white,
-    //       border: Border(
-    //         bottom: BorderSide(
-    //           color: Color(0xFFE0E0E0),
-    //         ),
-    //       ),
-    //     ),
-    //     child: Row(
-    //       children: [
-    //         Expanded(
-    //           child: Text(
-    //             account.name,
-    //             style: const TextStyle(
-    //               fontSize: 16,
-    //               fontWeight: FontWeight.w500,
-    //             ),
-    //           ),
-    //         ),
-
-    //         Text(
-    //           rupiah.format(balance),
-    //           style: const TextStyle(
-    //             fontSize: 15,
-    //             fontWeight: FontWeight.w600,
-    //           ),
-    //         ),
-
-    //         const SizedBox(width: 6),
-
-    //         const Icon(
-    //           Icons.chevron_right,
-    //           size: 18,
-    //           color: Colors.grey,
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 }

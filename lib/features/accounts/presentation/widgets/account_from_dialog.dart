@@ -1,4 +1,3 @@
-// import 'package:artakula/features/accounts/';
 import 'package:artakula/features/accounts/data/account_icons.dart';
 import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/categories/providers/category_provider.dart';
@@ -51,6 +50,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
   @override
   void dispose() {
     _nameController.dispose();
+    _balanceController.dispose();
     super.dispose();
   }
 

@@ -83,7 +83,7 @@ class AccountPickerSheet extends StatelessWidget {
       child: ListView.separated(
         shrinkWrap: true,
         itemCount: accounts.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, i) {
           final acc = accounts[i];
           final isSelected = acc.id == selected?.id;

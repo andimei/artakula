@@ -3,10 +3,7 @@ import 'package:artakula/features/transactions/data/models/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// import '../../data/models/category.dart';
-// import '../../providers/category_provider.dart';
 import '../../../categories/providers/category_provider.dart';
-// import '../../../transactions/domain/transaction_type.dart';
 
 class CategoryPickerPage extends ConsumerWidget {
   final TransactionType type;
@@ -24,12 +21,6 @@ class CategoryPickerPage extends ConsumerWidget {
 
     bool isIncome = TransactionType.income == type;
 
-    /// filter category sesuai type
-    // final filtered = categories
-    //     .where((c) => !c.isSystem)
-    //     .where((c) => c.isIncome == isIncome)
-    //     .toList();
-
     final filtered =
         categories.where((c) => !c.isSystem && c.isIncome == isIncome).toList()
           ..sort(
@@ -39,7 +30,6 @@ class CategoryPickerPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Category"),
-        // backgroundColor: Colors.green,
       ),
 
       floatingActionButton: FloatingActionButton(

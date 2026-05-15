@@ -48,8 +48,6 @@ final cashFlow30DaysProvider = Provider<List<CashFlowDay>>((ref) {
   final txs = ref.watch(transactionProvider);
 
   final now = DateTime.now();
-  // final start = now.subtract(const Duration(days: 29));
-
   final start = normalize(
     now.subtract(const Duration(days: 29)),
   );
@@ -144,27 +142,6 @@ class _Chart extends ConsumerWidget {
         horizontalInterval: (maxY - minY) / 6,
       ),
 
-      // extraLinesData: ExtraLinesData(
-      //   horizontalLines: [
-      //     HorizontalLine(
-      //       y: 1200,
-      //       color: Colors.white,
-      //       strokeWidth: 1,
-      //     ),
-      //   ],
-      // ),
-      // extraLinesData: ExtraLinesData(
-      //   verticalLines: selected == null
-      //       ? []
-      //       : [
-      //           VerticalLine(
-      //             x: selected.toDouble(),
-      //             color: Colors.white24,
-      //             strokeWidth: 2,
-      //             dashArray: [4, 4],
-      //           ),
-      //         ],
-      // ),
       extraLinesData: ExtraLinesData(
         extraLinesOnTop: false,
         verticalLines: [
@@ -183,7 +160,6 @@ class _Chart extends ConsumerWidget {
             y: 0,
             color: Colors.white,
             strokeWidth: 0.5,
-            // dashArray: [4, 4],
           ),
         ],
       ),
@@ -283,22 +259,6 @@ class _Chart extends ConsumerWidget {
           },
         ),
 
-        // touchTooltipData: BarTouchTooltipData(
-        //   // tooltipBgColor: const Color(0xFF111827),
-        //   // tooltipRoundedRadius: 14,
-        //   tooltipPadding: const EdgeInsets.all(12),
-        //   getTooltipItem: (group, groupIndex, rod, rodIndex) {
-        //     final d = data[group.x.toInt()];
-
-        //     return BarTooltipItem(
-        //       "${d.date.day}/${d.date.month}\n"
-        //       "+${d.income.toInt()}\n"
-        //       "-${d.expense.toInt()}\n"
-        //       "${d.net.toInt()}",
-        //       const TextStyle(color: Colors.white),
-        //     );
-        //   },
-        // ),
       ),
 
       barGroups: List.generate(data.length, (i) {
@@ -345,44 +305,6 @@ class _Chart extends ConsumerWidget {
       children: [
         BarChart(barData),
 
-        // /// CUMULATIVE LINE
-        // IgnorePointer(
-        //   child: LineChart(
-        //     LineChartData(
-        //       minX: 0,
-        //       maxX: data.length.toDouble(),
-        //       minY: -maxY,
-        //       maxY: maxY,
-        //       borderData: FlBorderData(show: false),
-        //       gridData: FlGridData(show: false),
-        //       // titlesData: FlTitlesData(show: false),
-        //       titlesData: FlTitlesData(
-        //         leftTitles: AxisTitles(
-        //           sideTitles: SideTitles(
-        //             showTitles: true,
-        //             reservedSize: 42,
-        //             interval: maxY / 4,
-        //             getTitlesWidget: (value, meta) {
-        //               return _yTitle(value);
-        //             },
-        //           ),
-        //         ),
-        //         rightTitles: AxisTitles(
-        //           sideTitles: SideTitles(showTitles: false),
-        //         ),
-
-        //         topTitles: AxisTitles(
-        //           sideTitles: SideTitles(showTitles: false),
-        //         ),
-
-        //         bottomTitles: AxisTitles(
-        //           sideTitles: SideTitles(showTitles: false),
-        //         ),
-        //       ),
-        //       lineBarsData: [cumulativeLine(data)],
-        //     ),
-        //   ),
-        // ),
       ],
     );
   }
@@ -467,26 +389,6 @@ bool _isYesterday(DateTime date) {
   final yesterday = DateTime.now().subtract(const Duration(days: 1));
 
   return _isSameDay(date, yesterday);
-}
-
-String _monthShort(int m) {
-  const months = [
-    "",
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "Mei",
-    "Jun",
-    "Jul",
-    "Agu",
-    "Sep",
-    "Okt",
-    "Nov",
-    "Des",
-  ];
-
-  return months[m];
 }
 
 /// ================= LINE =================

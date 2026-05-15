@@ -19,10 +19,6 @@ class AccountPickerPage extends ConsumerWidget {
 
     final filtered = accounts.toList()
       ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
-    // accounts
-    //   ..sort(
-    //     (a, b) => (a.order ?? 0).compareTo(b.order ?? 0),
-    //   );
 
     final rupiah = NumberFormat.currency(
       locale: 'id_ID',
@@ -33,7 +29,6 @@ class AccountPickerPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Account"),
-        // backgroundColor: Colors.green,
       ),
 
       floatingActionButton: FloatingActionButton(
@@ -44,7 +39,7 @@ class AccountPickerPage extends ConsumerWidget {
 
       body: ListView.separated(
         itemCount: filtered.length,
-        separatorBuilder: (_, __) => const Divider(
+        separatorBuilder: (_, _) => const Divider(
           height: 1,
           color: Color.fromARGB(255, 226, 226, 226),
           indent: 18,
@@ -65,7 +60,6 @@ class AccountPickerPage extends ConsumerWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                // color: acc.color,
                 color: Colors.amber,
                 borderRadius: BorderRadius.circular(12),
               ),

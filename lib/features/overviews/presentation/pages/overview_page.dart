@@ -7,7 +7,7 @@ class OverviewPage extends ConsumerStatefulWidget {
   const OverviewPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _OverviewPageState();
+  ConsumerState<OverviewPage> createState() => _OverviewPageState();
 }
 
 class _OverviewPageState extends ConsumerState<OverviewPage> {

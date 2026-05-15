@@ -1,4 +1,3 @@
-// import 'package:artakula/features/accounts/presentation/widgets/account_tile.dart';
 import 'package:artakula/features/accounts/data/models/account.dart';
 import 'package:artakula/features/accounts/presentation/widgets/account_from_dialog.dart';
 import 'package:artakula/features/accounts/presentation/widgets/account_header.dart';
