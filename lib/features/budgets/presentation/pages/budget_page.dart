@@ -9,13 +9,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collection/collection.dart';
 import 'budget_form_page.dart';
 
-class BudgetsPage extends ConsumerWidget {
+class BudgetsPage extends ConsumerStatefulWidget {
   const BudgetsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BudgetsPage> createState() => _BudgetsPageState();
+}
+
+class _BudgetsPageState extends ConsumerState<BudgetsPage> {
+  List<Budget> _sorted = [];
+
+  @override
+  Widget build(BuildContext context) {
     final budgets = ref.watch(budgetProvider);
     final categories = ref.watch(categoryProvider);
+
+    _sorted = [...budgets]
+      ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
 
     return Scaffold(
       appBar: AppBar(
@@ -34,19 +44,32 @@ class BudgetsPage extends ConsumerWidget {
         child: const Icon(Icons.add),
       ),
 
-      body: budgets.isEmpty
+      body: _sorted.isEmpty
           ? _emptyState(context)
-          : ListView.builder(
+          : ReorderableListView.builder(
+              buildDefaultDragHandles: false,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-              itemCount: budgets.length,
+              itemCount: _sorted.length,
+              onReorder: _onReorder,
               itemBuilder: (_, i) {
-                final budget = budgets[i];
+                final budget = _sorted[i];
                 final category = categories.firstWhereOrNull(
                   (c) => c.id == budget.categoryId,
                 );
                 return _BudgetCard(
+                  key: ValueKey(budget.id),
                   budget: budget,
                   category: category,
+                  dragHandle: ReorderableDragStartListener(
+                    index: i,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Icon(
+                        Icons.dehaze,
+                        color: context.colors.onSurfaceVariant.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -59,6 +82,21 @@ class BudgetsPage extends ConsumerWidget {
               },
             ),
     );
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex--;
+
+    final item = _sorted.removeAt(oldIndex);
+    _sorted.insert(newIndex, item);
+
+    for (int i = 0; i < _sorted.length; i++) {
+      _sorted[i].order = i;
+    }
+
+    for (final b in _sorted) {
+      ref.read(budgetProvider.notifier).update(b);
+    }
   }
 
   Widget _emptyState(BuildContext context) {
@@ -98,11 +136,14 @@ class _BudgetCard extends StatelessWidget {
   final Budget budget;
   final Category? category;
   final VoidCallback onTap;
+  final Widget dragHandle;
 
   const _BudgetCard({
+    super.key,
     required this.budget,
     required this.category,
     required this.onTap,
+    required this.dragHandle,
   });
 
   @override
@@ -113,7 +154,7 @@ class _BudgetCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
           decoration: BoxDecoration(
             color: context.colors.surface,
             borderRadius: BorderRadius.circular(16),
@@ -123,6 +164,7 @@ class _BudgetCard extends StatelessWidget {
           ),
           child: Row(
             children: [
+              dragHandle,
               CircleAvatar(
                 radius: 24,
                 backgroundColor: context.semantic.expense.withValues(alpha: 0.12),

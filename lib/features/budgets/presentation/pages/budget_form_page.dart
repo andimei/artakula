@@ -67,6 +67,16 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? 'Edit Budget' : 'New Budget'),
+        actions: [
+          if (isEdit)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _confirmDelete,
+              style: IconButton.styleFrom(
+                foregroundColor: context.colors.onSurfaceVariant,
+              ),
+            ),
+        ],
       ),
 
       body: Column(
@@ -380,6 +390,37 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
 
   void _clearAmount() {
     setState(() => _amount = 0);
+  }
+
+  Future<void> _confirmDelete() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete budget?'),
+        content: const Text('This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: context.colors.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok == true) {
+      final b = widget.budget;
+      if (b == null) return;
+      await ref.read(budgetProvider.notifier).delete(b);
+      if (!mounted) return;
+      Navigator.pop(context);
+    }
   }
 
   void _save() {
