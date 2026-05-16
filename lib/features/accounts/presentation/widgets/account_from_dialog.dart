@@ -1,3 +1,4 @@
+import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/accounts/data/account_icons.dart';
 import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/categories/providers/category_provider.dart';
@@ -70,12 +71,12 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: Colors.blueGrey,
+                color: context.colors.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 _selectedIcon,
-                color: Colors.white,
+                color: context.colors.onPrimaryContainer,
                 size: 28,
               ),
             ),
@@ -112,7 +113,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
           TextButton(
             onPressed: _confirmDelete,
             style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
+              foregroundColor: context.semantic.expense,
             ),
             child: const Text('Delete'),
           ),
@@ -267,7 +268,7 @@ class _AccountFormDialogState extends ConsumerState<AccountFormDialog> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
+                  color: context.colors.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon),

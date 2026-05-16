@@ -1,3 +1,4 @@
+import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/accounts/data/models/account.dart';
 import 'package:artakula/features/accounts/presentation/widgets/account_from_dialog.dart';
 import 'package:artakula/features/accounts/presentation/widgets/account_header.dart';
@@ -77,7 +78,10 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
 
           dragHandle: ReorderableDragStartListener(
             index: index,
-            child: const Icon(Icons.dehaze, color: Colors.grey),
+            child: Icon(
+                    Icons.dehaze,
+                    color: context.colors.onSurfaceVariant.withValues(alpha: 0.4),
+                  ),
           ),
           onTap: () {
             _openForm(context, ref, account);

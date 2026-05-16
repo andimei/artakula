@@ -1,3 +1,4 @@
+import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/transactions/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,10 +36,10 @@ class AccountTile extends ConsumerWidget {
             horizontal: 16,
             vertical: 12,
           ),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: Color(0xFFE0E0E0),
+                color: context.colors.outlineVariant.withValues(alpha: 0.3),
               ),
             ),
           ),
@@ -48,12 +49,12 @@ class AccountTile extends ConsumerWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.amber,
+                  color: context.colors.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   account.icon,
-                  color: Colors.white,
+                  color: context.colors.onPrimaryContainer,
                 ),
               ),
               const SizedBox(width: 12),
@@ -84,10 +85,10 @@ class AccountTile extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               dragHandle ??
-                  const Icon(
+                  Icon(
                     Icons.dehaze,
                     size: 26,
-                    color: Colors.grey,
+                    color: context.colors.onSurfaceVariant.withValues(alpha: 0.4),
                   ),
             ],
           ),

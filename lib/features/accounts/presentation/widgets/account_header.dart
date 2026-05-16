@@ -1,3 +1,4 @@
+import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/transactions/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +22,7 @@ class AccountHeader extends ConsumerWidget {
         horizontal: 16,
         vertical: 4,
       ),
-      color: Colors.grey.shade200,
+      color: context.colors.surfaceContainerLow,
       child: Row(
         children: [
           const Expanded(
