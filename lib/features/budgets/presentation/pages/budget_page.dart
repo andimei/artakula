@@ -27,6 +27,8 @@ class _BudgetsPageState extends ConsumerState<BudgetsPage> {
     _sorted = [...budgets]
       ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
 
+    final totalBudget = budgets.fold(0, (sum, b) => sum + b.amount);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Budgets'),
@@ -46,41 +48,52 @@ class _BudgetsPageState extends ConsumerState<BudgetsPage> {
 
       body: _sorted.isEmpty
           ? _emptyState(context)
-          : ReorderableListView.builder(
-              buildDefaultDragHandles: false,
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-              itemCount: _sorted.length,
-              onReorder: _onReorder,
-              itemBuilder: (_, i) {
-                final budget = _sorted[i];
-                final category = categories.firstWhereOrNull(
-                  (c) => c.id == budget.categoryId,
-                );
-                return _BudgetCard(
-                  key: ValueKey(budget.id),
-                  budget: budget,
-                  category: category,
-                  dragHandle: ReorderableDragStartListener(
-                    index: i,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Icon(
-                        Icons.dehaze,
-                        color: context.colors.onSurfaceVariant.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BudgetFormPage(budget: budget),
-                      ),
-                    );
-                  },
-                );
-              },
+          : Column(
+              children: [
+                _BudgetHeader(total: totalBudget),
+                Expanded(
+                  child: _buildList(context, categories),
+                ),
+              ],
             ),
+    );
+  }
+
+  Widget _buildList(BuildContext context, List<Category> categories) {
+    return ReorderableListView.builder(
+      buildDefaultDragHandles: false,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 80,
+      ),
+      itemCount: _sorted.length,
+      onReorder: _onReorder,
+      itemBuilder: (_, i) {
+        final budget = _sorted[i];
+        final category = categories.firstWhereOrNull(
+          (c) => c.id == budget.categoryId,
+        );
+        return _BudgetCard(
+          key: ValueKey(budget.id),
+          budget: budget,
+          category: category,
+          dragHandle: ReorderableDragStartListener(
+            index: i,
+            child: Icon(
+              Icons.dehaze,
+              size: 26,
+              color: context.colors.onSurfaceVariant.withValues(alpha: 0.4),
+            ),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BudgetFormPage(budget: budget),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -132,6 +145,43 @@ class _BudgetsPageState extends ConsumerState<BudgetsPage> {
   }
 }
 
+class _BudgetHeader extends StatelessWidget {
+  final int total;
+
+  const _BudgetHeader({required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 4,
+      ),
+      color: context.colors.surfaceContainerLow,
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Total',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Text(
+            formatRupiah(total),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _BudgetCard extends StatelessWidget {
   final Budget budget;
   final Category? category;
@@ -148,46 +198,49 @@ class _BudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
           decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: context.colors.outlineVariant.withValues(alpha: 0.3),
+            border: Border(
+              bottom: BorderSide(
+                color: context.colors.outlineVariant.withValues(alpha: 0.3),
+              ),
             ),
           ),
           child: Row(
             children: [
-              dragHandle,
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: context.semantic.expense.withValues(alpha: 0.12),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: context.colors.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Icon(
                   category?.icon ?? Icons.account_balance_wallet_outlined,
-                  color: context.semantic.expense,
-                  size: 22,
+                  color: context.colors.onPrimaryContainer,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       budget.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                        color: context.colors.onSurface,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 2),
                     Text(
                       _periodLabel(budget.period),
                       style: TextStyle(
@@ -198,15 +251,16 @@ class _BudgetCard extends StatelessWidget {
                   ],
                 ),
               ),
+
               Text(
                 formatRupiah(budget.amount),
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                  color: context.semantic.expense,
-                  fontFeatures: const [FontFeature.tabularFigures()],
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
                 ),
               ),
+              const SizedBox(width: 12),
+              dragHandle,
             ],
           ),
         ),
