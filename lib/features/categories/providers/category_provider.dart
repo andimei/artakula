@@ -2,7 +2,7 @@ import 'package:artakula/core/hive/hive_boxes.dart';
 import 'package:artakula/features/categories/data/category_hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../data/models/category.dart';
 
@@ -18,14 +18,28 @@ final categoryProvider =
     );
 
 class CategoryNotifier extends StateNotifier<List<Category>> {
+  late final Box<Category> _box;
+
   CategoryNotifier(this._service) : super([]) {
-    _load();
+    _init();
   }
 
   final CategoryHiveService _service;
 
-  void _load() {
-    state = _service.getAll();
+  void _init() {
+    _box = Hive.box<Category>(HiveBoxes.categories);
+    state = _box.values.toList();
+    _box.listenable().addListener(_onHiveChanged);
+  }
+
+  void _onHiveChanged() {
+    state = _box.values.toList();
+  }
+
+  @override
+  void dispose() {
+    _box.listenable().removeListener(_onHiveChanged);
+    super.dispose();
   }
 
   bool get isEmpty => _service.isEmpty;
@@ -36,21 +50,12 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
     for (final c in defaults) {
       await _service.add(c);
     }
-
-    _load();
   }
 
-  // Future<void> add(Category category) async {
-  //   await _service.add(category);
-  //   _load();
-  // }
-
   Future<void> add(Category category) async {
-    final box = Hive.box<Category>(HiveBoxes.categories);
-
     int nextOrder = 0;
-    if (box.isNotEmpty) {
-      final maxOrder = box.values
+    if (_box.isNotEmpty) {
+      final maxOrder = _box.values
           .map((c) => c.order ?? 0)
           .reduce((a, b) => a > b ? a : b);
       nextOrder = maxOrder + 1;
@@ -58,21 +63,16 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
 
     category.order = nextOrder;
 
-    await _service.add(category);
-
-    state = box.values.toList()
-      ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
+    await _box.put(category.id, category);
   }
 
   Future<void> update(Category category) async {
-    await _service.update(category);
-    _load();
+    await category.save();
   }
 
   Future<void> delete(Category category) async {
     if (category.isSystem) return; // protect system category
-    await _service.delete(category);
-    _load();
+    await category.delete();
   }
 
   /// SYSTEM CATEGORY CREATOR
@@ -96,7 +96,6 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
       ),
     );
 
-    _load();
   }
 }
 

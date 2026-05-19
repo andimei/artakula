@@ -1,7 +1,8 @@
+import 'package:artakula/core/hive/hive_boxes.dart';
 import 'package:artakula/features/accounts/provider/account_provider.dart';
-import 'package:artakula/features/transactions/data/transaction_hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../data/models/transaction.dart';
 
 final transactionProvider =
@@ -10,29 +11,38 @@ final transactionProvider =
     );
 
 class TransactionNotifier extends StateNotifier<List<Transaction>> {
+  late final Box<Transaction> _box;
+
   TransactionNotifier() : super([]) {
-    _load();
+    _init();
   }
 
-  final _service = TransactionHiveService();
+  void _init() {
+    _box = Hive.box<Transaction>(HiveBoxes.transactions);
+    state = _box.values.toList();
+    _box.listenable().addListener(_onHiveChanged);
+  }
 
-  void _load() {
-    state = _service.getAll();
+  void _onHiveChanged() {
+    state = _box.values.toList();
+  }
+
+  @override
+  void dispose() {
+    _box.listenable().removeListener(_onHiveChanged);
+    super.dispose();
   }
 
   Future<void> add(Transaction transaction) async {
-    await _service.add(transaction);
-    _load();
+    await _box.put(transaction.id, transaction);
   }
 
   Future<void> update(Transaction transaction) async {
-    await _service.update(transaction);
-    _load();
+    await transaction.save();
   }
 
   Future<void> delete(Transaction transaction) async {
-    await _service.delete(transaction);
-    _load();
+    await transaction.delete();
   }
 
   // Delete with undo
