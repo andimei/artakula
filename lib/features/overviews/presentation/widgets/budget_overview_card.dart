@@ -53,7 +53,7 @@ class BudgetOverviewCard extends ConsumerWidget {
 
           const SizedBox(height: 4),
 
-          ...overviews.map((b) => _BudgetProgressItem(context: context, data: b)),
+          ...overviews.map((b) => _BudgetProgressItem(data: b)),
 
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
@@ -86,11 +86,9 @@ class BudgetOverviewCard extends ConsumerWidget {
 }
 
 class _BudgetProgressItem extends StatelessWidget {
-  final BuildContext context;
   final BudgetWithSpending data;
 
   const _BudgetProgressItem({
-    required this.context,
     required this.data,
   });
 
@@ -107,7 +105,19 @@ class _BudgetProgressItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      child: Column(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BudgetFormPage(budget: b),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -118,7 +128,9 @@ class _BudgetProgressItem extends StatelessWidget {
                     ? context.semantic.expense.withValues(alpha: 0.12)
                     : context.colors.primaryContainer,
                 child: Icon(
-                  data.category?.icon ?? Icons.receipt_outlined,
+                  data.categories.isNotEmpty
+                      ? data.categories.first.icon
+                      : Icons.receipt_outlined,
                   size: 14,
                   color: isOverspent
                       ? context.semantic.expense
@@ -138,22 +150,44 @@ class _BudgetProgressItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                formatRupiah(data.spent),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.onSurface,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              Text(
-                ' / ${formatRupiah(b.amount)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: context.colors.onSurfaceVariant,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        formatRupiah(data.spent),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.onSurface,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      Text(
+                        ' / ${formatRupiah(b.amount)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: context.colors.onSurfaceVariant,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${(progress * 100).round()}%',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isOverspent
+                          ? context.semantic.expense
+                          : context.colors.primary,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -180,6 +214,8 @@ class _BudgetProgressItem extends StatelessWidget {
               ),
             ),
         ],
+          ),
+        ),
       ),
     );
   }

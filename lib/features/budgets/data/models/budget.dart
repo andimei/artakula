@@ -26,15 +26,19 @@ class Budget extends HiveObject {
   @HiveField(6)
   int? order;
 
+  @HiveField(7)
+  List<String> categoryIds;
+
   Budget({
     required this.id,
     required this.name,
-    required this.categoryId,
     required this.amount,
     required this.period,
     required this.startDate,
     this.order,
-  });
+    List<String>? categoryIds,
+  })  : categoryIds = categoryIds ?? [],
+        categoryId = (categoryIds ?? []).isEmpty ? '' : (categoryIds!.first);
 }
 
 @HiveType(typeId: 31)

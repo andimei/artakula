@@ -69,13 +69,16 @@ class _BudgetsPageState extends ConsumerState<BudgetsPage> {
       onReorder: _onReorder,
       itemBuilder: (_, i) {
         final budget = _sorted[i];
-        final category = categories.firstWhereOrNull(
-          (c) => c.id == budget.categoryId,
-        );
+        final matchedCategories = budget.categoryIds.isEmpty
+            ? <Category>[]
+            : budget.categoryIds
+                .map((id) => categories.firstWhereOrNull((c) => c.id == id))
+                .nonNulls
+                .toList();
         return _BudgetCard(
           key: ValueKey(budget.id),
           budget: budget,
-          category: category,
+          categories: matchedCategories,
           dragHandle: ReorderableDragStartListener(
             index: i,
             child: Icon(
@@ -184,14 +187,14 @@ class _BudgetHeader extends StatelessWidget {
 
 class _BudgetCard extends StatelessWidget {
   final Budget budget;
-  final Category? category;
+  final List<Category> categories;
   final VoidCallback onTap;
   final Widget dragHandle;
 
   const _BudgetCard({
     super.key,
     required this.budget,
-    required this.category,
+    required this.categories,
     required this.onTap,
     required this.dragHandle,
   });
@@ -216,18 +219,34 @@ class _BudgetCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: context.colors.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+              if (categories.isNotEmpty)
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: context.colors.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    categories.first.icon,
+                    color: context.colors.onPrimaryContainer,
+                  ),
+                )
+              else
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.category_outlined,
+                    color: context.colors.onSurfaceVariant,
+                    size: 22,
+                  ),
                 ),
-                child: Icon(
-                  category?.icon ?? Icons.account_balance_wallet_outlined,
-                  color: context.colors.onPrimaryContainer,
-                ),
-              ),
+
               const SizedBox(width: 12),
 
               Expanded(
@@ -241,16 +260,30 @@ class _BudgetCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 2),
+                    Text(
+                      categories.isNotEmpty
+                          ? categories.map((c) => c.name).join(', ')
+                          : 'No categories',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: context.colors.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     Text(
                       _periodLabel(budget.period),
                       style: TextStyle(
-                        fontSize: 12,
-                        color: context.colors.onSurfaceVariant,
+                        fontSize: 11,
+                        color: context.colors.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
                 ),
               ),
+
+              const SizedBox(width: 8),
 
               Text(
                 formatRupiah(budget.amount),

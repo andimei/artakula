@@ -1,7 +1,7 @@
 import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/budgets/data/models/budget.dart';
 import 'package:artakula/features/budgets/providers/budget_provider.dart';
-import 'package:artakula/features/categories/data/models/category.dart';
+import 'package:artakula/features/categories/presentation/widgets/category_multi_picker.dart';
 import 'package:artakula/features/categories/providers/category_provider.dart';
 import 'package:artakula/features/transactions/presentation/widgets/numeric_keypad.dart';
 import 'package:artakula/shared/utils/currency_formatter.dart';
@@ -24,7 +24,7 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
   int _amount = 0;
   BudgetPeriod _period = BudgetPeriod.monthly;
   late DateTime _startDate;
-  Category? _category;
+  Set<String> _selectedCategoryIds = {};
 
   bool get isEdit => widget.budget != null;
 
@@ -37,6 +37,7 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
       _amount = b.amount;
       _period = b.period;
       _startDate = b.startDate;
+      _selectedCategoryIds = Set.from(b.categoryIds);
     } else {
       _startDate = DateTime.now();
     }
@@ -51,18 +52,6 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-    final categories = ref.watch(expenseCategoriesProvider);
-
-    if (_category != null && widget.budget == null) {
-      final stillExists = categories.any((c) => c.id == _category!.id);
-      if (!stillExists) _category = null;
-    }
-
-    if (widget.budget != null && _category == null) {
-      _category = categories.where(
-        (c) => c.id == widget.budget!.categoryId,
-      ).firstOrNull;
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -87,7 +76,7 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
               children: [
                 _nameField(),
                 const SizedBox(height: 16),
-                _categoryPicker(context, categories),
+                _categoryPicker(context),
                 const SizedBox(height: 16),
                 _periodPicker(),
                 const SizedBox(height: 16),
@@ -131,9 +120,12 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
     );
   }
 
-  Widget _categoryPicker(BuildContext context, List<Category> categories) {
+  Widget _categoryPicker(BuildContext context) {
+    final categories = ref.watch(expenseCategoriesProvider);
+    final selected = categories.where((c) => _selectedCategoryIds.contains(c.id));
+
     return InkWell(
-      onTap: () => _pickCategory(context, categories),
+      onTap: () => _pickCategories(context),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -146,38 +138,49 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
         ),
         child: Row(
           children: [
-            if (_category != null)
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: context.semantic.expense.withValues(alpha: 0.12),
-                child: Icon(
-                  _category!.icon,
-                  size: 16,
-                  color: context.semantic.expense,
-                ),
-              )
-            else
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: context.colors.surfaceContainerHighest,
-                child: Icon(
-                  Icons.category_outlined,
-                  size: 16,
-                  color: context.colors.onSurfaceVariant,
-                ),
-              ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                _category?.name ?? 'Select Category',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: _category != null
-                      ? context.colors.onSurface
-                      : context.colors.onSurfaceVariant,
-                ),
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: context.semantic.expense.withValues(alpha: 0.12),
+              child: Icon(
+                Icons.category_outlined,
+                size: 16,
+                color: context.semantic.expense,
               ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: selected.isEmpty
+                  ? Text(
+                      'Select Categories',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: context.colors.onSurfaceVariant,
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${selected.length} categories',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: context.colors.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          selected.map((c) => c.name).join(', '),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.colors.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+            ),
+            const SizedBox(width: 8),
             Icon(
               Icons.chevron_right_rounded,
               color: context.colors.onSurfaceVariant,
@@ -188,82 +191,17 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
     );
   }
 
-  void _pickCategory(BuildContext context, List<Category> categories) {
-    showModalBottomSheet(
+  Future<void> _pickCategories(BuildContext context) async {
+    final selected = await showCategoryMultiPicker(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.6,
-          maxChildSize: 0.85,
-          builder: (_, scrollController) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: context.colors.onSurfaceVariant.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Select Category',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: ListView.separated(
-                      controller: scrollController,
-                      itemCount: categories.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 4),
-                      itemBuilder: (_, i) {
-                        final cat = categories[i];
-                        final selected = cat.id == _category?.id;
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: context.semantic.expense.withValues(alpha: 0.12),
-                            child: Icon(
-                              cat.icon,
-                              color: context.semantic.expense,
-                            ),
-                          ),
-                          title: Text(cat.name),
-                          trailing: selected
-                              ? Icon(Icons.check_rounded, color: context.colors.primary)
-                              : null,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          selected: selected,
-                          onTap: () {
-                            setState(() => _category = cat);
-                            Navigator.pop(ctx);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+      initialSelectedIds: _selectedCategoryIds,
+      filterIncome: false,
+      title: 'Select Categories',
     );
+
+    if (selected != null) {
+      setState(() => _selectedCategoryIds = selected);
+    }
   }
 
   Widget _periodPicker() {
@@ -429,8 +367,8 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
       _error('Please enter a budget name');
       return;
     }
-    if (_category == null) {
-      _error('Please select a category');
+    if (_selectedCategoryIds.isEmpty) {
+      _error('Please select at least one category');
       return;
     }
     if (_amount <= 0) {
@@ -443,7 +381,7 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
     if (isEdit) {
       final b = widget.budget!;
       b.name = name;
-      b.categoryId = _category!.id;
+      b.categoryIds = _selectedCategoryIds.toList();
       b.amount = _amount;
       b.period = _period;
       b.startDate = _startDate;
@@ -452,7 +390,7 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
       notifier.add(Budget(
         id: const Uuid().v4(),
         name: name,
-        categoryId: _category!.id,
+        categoryIds: _selectedCategoryIds.toList(),
         amount: _amount,
         period: _period,
         startDate: _startDate,
