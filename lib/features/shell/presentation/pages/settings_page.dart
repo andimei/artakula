@@ -44,6 +44,12 @@ class SettingsPage extends ConsumerWidget {
 
           const _SectionHeader(title: "Data"),
           _ActionTile(
+            icon: Icons.table_chart_outlined,
+            title: "Export CSV",
+            subtitle: "Simpan transaksi ke file CSV",
+            onTap: () => _doExportCsv(context),
+          ),
+          _ActionTile(
             icon: Icons.backup,
             title: "Backup Data",
             subtitle: "Simpan backup ke file JSON",
@@ -58,6 +64,32 @@ class SettingsPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _doExportCsv(BuildContext context) async {
+    try {
+      final path = await _backupService.exportCsvToUserLocation();
+
+      if (!context.mounted) return;
+
+      if (path != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('CSV saved:\n$path'),
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('CSV export failed: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<void> _doBackup(BuildContext context) async {

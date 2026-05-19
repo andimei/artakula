@@ -32,7 +32,13 @@ class MyApp extends ConsumerWidget {
 
       home: bootstrap.when(
         loading: () => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+          body: Center(
+            child: SizedBox(
+              width: 36,
+              height: 36,
+              child: CircularProgressIndicator(strokeWidth: 3),
+            ),
+          ),
         ),
         error: (e, _) => Scaffold(
           body: Center(child: Text('Error: $e')),
