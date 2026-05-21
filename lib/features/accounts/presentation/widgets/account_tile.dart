@@ -1,4 +1,3 @@
-import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/transactions/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,81 +19,72 @@ class AccountTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final balance = ref.watch(accountBalanceProvider(account.id));
-
+    final cs = Theme.of(context).colorScheme;
     final rupiah = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: '',
-      decimalDigits: 0,
+      locale: 'id_ID', symbol: '', decimalDigits: 0,
     );
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: 0.3),
           ),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: context.colors.outlineVariant.withValues(alpha: 0.3),
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: context.colors.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  account.icon,
-                  color: context.colors.onPrimaryContainer,
-                ),
-              ),
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        account.name,
-                        style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      ),
-                    ),
-
-                    Text(
-                      rupiah.format(balance),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              dragHandle ??
-                  Icon(
-                    Icons.dehaze,
-                    size: 26,
-                    color: context.colors.onSurfaceVariant.withValues(alpha: 0.4),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-            ],
+                  child: Icon(
+                    account.icon,
+                    size: 18,
+                    color: cs.onPrimaryContainer,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    account.name,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ),
+                Text(
+                  rupiah.format(balance),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurface,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                dragHandle ?? Icon(
+                  Icons.dehaze,
+                  size: 20,
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
-
   }
 }

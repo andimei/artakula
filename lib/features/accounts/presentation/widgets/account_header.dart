@@ -1,4 +1,3 @@
-import 'package:artakula/core/theme/theme_ext.dart';
 import 'package:artakula/features/transactions/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

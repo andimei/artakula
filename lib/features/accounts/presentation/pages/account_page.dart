@@ -23,7 +23,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
       appBar: AppBar(title: const Text('Accounts')),
       floatingActionButton: FloatingActionButton(
         heroTag: null,
-
         onPressed: () => _openForm(context, ref, null),
         child: const Icon(Icons.add),
       ),
@@ -31,13 +30,9 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           ? const Center(child: Text('No accounts yet'))
           : Column(
               children: [
-                Container(
-                  // padding: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 2,
-                  ),
-                  child: const AccountHeader(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  child: AccountHeader(),
                 ),
                 Expanded(
                   child: _buildList(context, accounts),
@@ -63,25 +58,21 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).padding.bottom + 80,
       ),
-
       itemCount: filtered.length,
-
       onReorder: (oldIndex, newIndex) =>
           _onReorder(filtered, oldIndex, newIndex),
-
       itemBuilder: (context, index) {
         final account = filtered[index];
 
         return AccountTile(
           key: ValueKey(account.id),
           account: account,
-
           dragHandle: ReorderableDragStartListener(
             index: index,
             child: Icon(
-                    Icons.dehaze,
-                    color: context.colors.onSurfaceVariant.withValues(alpha: 0.4),
-                  ),
+              Icons.dehaze,
+              color: context.colors.onSurfaceVariant.withValues(alpha: 0.3),
+            ),
           ),
           onTap: () {
             _openForm(context, ref, account);
@@ -101,17 +92,13 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     final item = list.removeAt(oldIndex);
     list.insert(newIndex, item);
 
-    /// update order hanya group ini
     for (int i = 0; i < list.length; i++) {
       list[i].order = i;
     }
 
     await Future.wait(list.map((c) => c.save()));
-
-    setState(() {});
   }
 
-  /// OPEN FORM
   void _openForm(
     BuildContext context,
     WidgetRef ref, [
