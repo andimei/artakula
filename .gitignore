@@ -84,3 +84,4 @@ GoogleService-Info.plist
 # =========================
 .env
 /pubspec.lock
+/references
