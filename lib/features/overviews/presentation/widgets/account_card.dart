@@ -1,6 +1,7 @@
 import 'package:artakula/features/accounts/data/models/account.dart';
 import 'package:artakula/features/accounts/provider/account_provider.dart';
 import 'package:artakula/features/transactions/providers/transaction_provider.dart';
+import 'package:artakula/shared/widgets/section_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -11,80 +12,73 @@ class AccountSnapshotCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final total = ref.watch(totalBalanceProvider);
-
     final accounts = ref.watch(sortedAccountProvider);
-
+    final cs = Theme.of(context).colorScheme;
     final rupiah = NumberFormat.currency(
       locale: 'id_ID',
       symbol: '',
       decimalDigits: 0,
     );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          /// HEADER
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 12,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-            ),
+    final children = <Widget>[
+      _BalanceHeader(total: total, rupiah: rupiah),
+    ];
 
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    "Actual balance",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-
-                Text(
-                  rupiah.format(total),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+    for (int i = 0; i < accounts.length; i++) {
+      if (i > 0) {
+        children.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Divider(
+              height: 1,
+              color: cs.outlineVariant.withValues(alpha: 0.3),
             ),
           ),
+        );
+      }
+      children.add(_AccountRow(account: accounts[i]));
+    }
 
-          /// ACCOUNTS
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(12),
-            itemCount: accounts.length,
-            separatorBuilder: (_, _) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              child: Divider(
-                height: 1,
-                color: Colors.grey.shade300,
-              ),
+    return SectionCard(child: Column(children: children));
+  }
+}
+
+class _BalanceHeader extends StatelessWidget {
+  final int total;
+  final NumberFormat rupiah;
+
+  const _BalanceHeader({required this.total, required this.rupiah});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Total Balance',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: cs.onSurfaceVariant,
             ),
-            itemBuilder: (context, index) {
-              final account = accounts[index];
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 0),
-                child: AccountItem(
-                  key: ValueKey(account.id),
-                  account: account,
-                ),
-              );
-            },
+          ),
+          const SizedBox(height: 4),
+          Text(
+            rupiah.format(total),
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+              fontFeatures: [FontFeature.tabularFigures()],
+            ),
           ),
         ],
       ),
@@ -92,54 +86,65 @@ class AccountSnapshotCard extends ConsumerWidget {
   }
 }
 
-class AccountItem extends ConsumerWidget {
+class _AccountRow extends ConsumerWidget {
   final Account account;
-  final VoidCallback? onTap;
 
-  const AccountItem({
-    super.key,
-    required this.account,
-    this.onTap,
-  });
+  const _AccountRow({required this.account});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final balance = ref.watch(accountBalanceProvider(account.id));
+    final cs = Theme.of(context).colorScheme;
     final rupiah = NumberFormat.currency(
       locale: 'id_ID',
       symbol: '',
       decimalDigits: 0,
     );
 
-    return InkWell(
-      onTap: () {},
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          CircleAvatar(
-            backgroundColor: Colors.grey.shade300,
-            // child: const Icon(Icons.account_balance_wallet),
-            child: Icon(account.icon),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              account.name,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: InkWell(
+        onTap: () {},
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  account.icon,
+                  size: 18,
+                  color: cs.onPrimaryContainer,
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  account.name,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: cs.onSurface,
+                  ),
+                ),
+              ),
+              Text(
+                rupiah.format(balance),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                  fontFeatures: [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
           ),
-
-          Text(
-            rupiah.format(balance),
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

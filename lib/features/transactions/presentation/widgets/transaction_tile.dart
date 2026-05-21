@@ -46,22 +46,26 @@ class TransactionTile extends ConsumerWidget {
     final amountColor = isIncome
         ? context.semantic.income
         : isExpense
-            ? context.semantic.expense
-            : context.colors.onSurface;
+        ? context.semantic.expense
+        : context.colors.onSurface;
 
     final iconBgColor = isIncome
         ? context.semantic.income.withValues(alpha: 0.12)
         : isExpense
-            ? context.semantic.expense.withValues(alpha: 0.12)
-            : context.colors.primaryContainer;
+        ? context.semantic.expense.withValues(alpha: 0.12)
+        : context.colors.primaryContainer;
 
     final iconColor = isIncome
         ? context.semantic.income
         : isExpense
-            ? context.semantic.expense
-            : context.colors.onPrimaryContainer;
+        ? context.semantic.expense
+        : context.colors.onPrimaryContainer;
 
-    final sign = isIncome ? '+' : isExpense ? '-' : '';
+    final sign = isIncome
+        ? '+'
+        : isExpense
+        ? '-'
+        : '';
 
     final title = isTransfer ? 'Transfer' : category?.name ?? 'Transaction';
 
@@ -75,10 +79,11 @@ class TransactionTile extends ConsumerWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
           decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(14),
+            color: context.colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: context.colors.outlineVariant.withValues(alpha: 0.3),
             ),
@@ -86,12 +91,14 @@ class TransactionTile extends ConsumerWidget {
           child: Row(
             children: [
               CircleAvatar(
-                radius: 22,
+                radius: 20,
                 backgroundColor: iconBgColor,
                 child: Icon(
-                  isTransfer ? Icons.swap_horiz : category?.icon ?? Icons.receipt,
+                  isTransfer
+                      ? Icons.swap_horiz
+                      : category?.icon ?? Icons.receipt,
                   color: iconColor,
-                  size: 20,
+                  size: 18,
                 ),
               ),
               const SizedBox(width: 12),
@@ -127,7 +134,7 @@ class TransactionTile extends ConsumerWidget {
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   color: amountColor,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   fontSize: 14,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),

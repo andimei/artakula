@@ -130,7 +130,7 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: context.colors.surface,
+          color: context.colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: context.colors.outlineVariant.withValues(alpha: 0.5),
@@ -233,7 +233,7 @@ class _BudgetFormPageState extends ConsumerState<BudgetFormPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: context.colors.surface,
+          color: context.colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: context.colors.outlineVariant.withValues(alpha: 0.5),

@@ -36,8 +36,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     final balance = ref.watch(balanceProvider(_currentMonth));
 
     return Scaffold(
-      backgroundColor: context.colors.surfaceContainerLowest,
-
+      // backgroundColor: context.colors.surfaceContainerLow,
       appBar: AppBar(
         title: const Text("Transactions"),
         centerTitle: true,
@@ -212,20 +211,22 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                         label: SizedBox(
                           width: 28,
                           child: Center(
-                            child: Text([
-                              "Jan",
-                              "Feb",
-                              "Mar",
-                              "Apr",
-                              "Mei",
-                              "Jun",
-                              "Jul",
-                              "Agu",
-                              "Sep",
-                              "Okt",
-                              "Nov",
-                              "Des",
-                            ][index]),
+                            child: Text(
+                              [
+                                "Jan",
+                                "Feb",
+                                "Mar",
+                                "Apr",
+                                "Mei",
+                                "Jun",
+                                "Jul",
+                                "Agu",
+                                "Sep",
+                                "Okt",
+                                "Nov",
+                                "Des",
+                              ][index],
+                            ),
                           ),
                         ),
                         selected: isSelected,
@@ -261,18 +262,22 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
 
   /// SUMMARY CARD
   Widget _summaryCard(
-      BuildContext context, int income, int expense, int balance) {
+    BuildContext context,
+    int income,
+    int expense,
+    int balance,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
-          color: context.colors.surface,
+          color: context.colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: context.colors.outlineVariant.withValues(alpha: 0.3),
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
         child: Column(
           children: [
             _summaryRow(
@@ -342,7 +347,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           style: TextStyle(
             color: color,
             fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
-            fontSize: isTotal ? 15 : 14,
+            fontSize: isTotal ? 14 : 14,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
@@ -445,16 +450,19 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               ),
             ),
           ),
-          Text(
-            formatRupiah(total),
-            textAlign: TextAlign.end,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: total >= 0
-                  ? context.semantic.income
-                  : context.semantic.expense,
-              fontFeatures: const [FontFeature.tabularFigures()],
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Text(
+              formatRupiah(total),
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: total >= 0
+                    ? context.semantic.income
+                    : context.semantic.expense,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
           ),
         ],

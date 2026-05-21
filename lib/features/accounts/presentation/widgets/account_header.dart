@@ -10,35 +10,40 @@ class AccountHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final total = ref.watch(totalBalanceProvider);
-
+    final cs = Theme.of(context).colorScheme;
     final rupiah = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: '',
-      decimalDigits: 0,
+      locale: 'id_ID', symbol: '', decimalDigits: 0,
     );
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 4,
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.3),
+        ),
       ),
-      color: context.colors.surfaceContainerLow,
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Expanded(
-            child: Text(
-              'Total',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+          Text(
+            'Total Balance',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: cs.onSurfaceVariant,
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             rupiah.format(total),
-            style: const TextStyle(
-              fontSize: 16,
+            style: TextStyle(
+              fontSize: 28,
               fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+              fontFeatures: [FontFeature.tabularFigures()],
             ),
           ),
         ],

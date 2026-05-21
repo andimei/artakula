@@ -374,7 +374,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
           vertical: 2,
         ),
         decoration: BoxDecoration(
-          color: scheme.surface,
+          color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
