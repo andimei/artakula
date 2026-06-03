@@ -20,8 +20,9 @@ class _CategorySummaryCardState extends ConsumerState<CategorySummaryCard> {
   final _monthFormat = DateFormat('MMMM yyyy', 'id_ID');
 
   void _setType(TimeRangeType type) {
-    ref.read(timeRangeFilterProvider.notifier).state =
-        ref.read(timeRangeFilterProvider).copyWith(type: type);
+    ref.read(timeRangeFilterProvider.notifier).state = ref
+        .read(timeRangeFilterProvider)
+        .copyWith(type: type);
   }
 
   Future<void> _showMonthPicker() async {
@@ -89,7 +90,7 @@ class _CategorySummaryCardState extends ConsumerState<CategorySummaryCard> {
                   ),
                   const SizedBox(width: 8),
                   _TimeChip(
-                    label: '7 Days',
+                    label: 'Week',
                     selected: filter.type == TimeRangeType.last7Days,
                     onTap: () => _setType(TimeRangeType.last7Days),
                   ),
@@ -139,7 +140,11 @@ class _CategorySummaryCardState extends ConsumerState<CategorySummaryCard> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline_rounded, size: 16, color: cs.onSurfaceVariant),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: cs.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'No transactions in this period',
@@ -199,6 +204,7 @@ class _TimeChip extends StatelessWidget {
       onSelected: (_) => onTap(),
       visualDensity: VisualDensity.compact,
       selectedColor: cs.secondaryContainer,
+      showCheckmark: false,
       labelStyle: TextStyle(
         fontSize: 12,
         color: selected ? cs.onSecondaryContainer : cs.onSurfaceVariant,
@@ -220,7 +226,7 @@ class _CategoryRow extends StatelessWidget {
     final hasExpense = summary.totalExpense > 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Row(
         children: [
           Container(
@@ -296,7 +302,11 @@ class _TotalRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Icon(Icons.arrow_upward_rounded, size: 14, color: context.semantic.income),
+          Icon(
+            Icons.arrow_upward_rounded,
+            size: 14,
+            color: context.semantic.income,
+          ),
           const SizedBox(width: 4),
           Text(
             formatRupiah(totalIncome),
@@ -308,7 +318,11 @@ class _TotalRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Icon(Icons.arrow_downward_rounded, size: 14, color: context.semantic.expense),
+          Icon(
+            Icons.arrow_downward_rounded,
+            size: 14,
+            color: context.semantic.expense,
+          ),
           const SizedBox(width: 4),
           Text(
             formatRupiah(totalExpense),
@@ -342,8 +356,18 @@ class _MonthPickerDialogState extends State<_MonthPickerDialog> {
   late int _year;
 
   static const _monthNames = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'Mei',
+    'Jun',
+    'Jul',
+    'Agu',
+    'Sep',
+    'Okt',
+    'Nov',
+    'Des',
   ];
 
   @override
@@ -369,8 +393,9 @@ class _MonthPickerDialogState extends State<_MonthPickerDialog> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
-                  onPressed:
-                      _year > 2020 ? () => setState(() => _year--) : null,
+                  onPressed: _year > 2020
+                      ? () => setState(() => _year--)
+                      : null,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -385,8 +410,9 @@ class _MonthPickerDialogState extends State<_MonthPickerDialog> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
-                  onPressed:
-                      _year < now.year ? () => setState(() => _year++) : null,
+                  onPressed: _year < now.year
+                      ? () => setState(() => _year++)
+                      : null,
                 ),
               ],
             ),
@@ -402,7 +428,8 @@ class _MonthPickerDialogState extends State<_MonthPickerDialog> {
                 final isSelected =
                     _year == widget.initialYear && month == widget.initialMonth;
                 final canSelect =
-                    _year < now.year || (_year == now.year && month <= now.month);
+                    _year < now.year ||
+                    (_year == now.year && month <= now.month);
 
                 return FilledButton(
                   onPressed: canSelect
@@ -412,9 +439,7 @@ class _MonthPickerDialogState extends State<_MonthPickerDialog> {
                     backgroundColor: isSelected
                         ? cs.primary
                         : cs.surfaceContainerHighest,
-                    foregroundColor: isSelected
-                        ? cs.onPrimary
-                        : cs.onSurface,
+                    foregroundColor: isSelected ? cs.onPrimary : cs.onSurface,
                     padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),

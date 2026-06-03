@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers/transaction_provider.dart';
-import '../widgets/transaction_tile.dart';
+import 'package:artakula/features/accounts/provider/account_provider.dart';
+import 'package:artakula/features/categories/providers/category_provider.dart';
+import 'package:collection/collection.dart';
 import 'transaction_filter_page.dart';
 import 'transaction_form_page.dart';
 
@@ -272,7 +274,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
       child: Container(
         decoration: BoxDecoration(
           color: context.colors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: context.colors.outlineVariant.withValues(alpha: 0.3),
           ),
@@ -377,95 +379,247 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
       itemBuilder: (context, index) {
         final day = keys[index];
         final items = grouped[day]!;
-
-        final total = items.fold<int>(
-          0,
-          (sum, tx) => sum + tx.signedAmount,
-        );
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _dayHeader(context, day, total),
-            ),
-            const SizedBox(height: 8),
-            ...items.map(
-              (tx) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: TransactionTile(
-                  transaction: tx,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TransactionFormPage(transaction: tx),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
-          ],
-        );
+        return _DayCard(day: day, transactions: items);
       },
     );
   }
+}
 
-  Widget _dayHeader(BuildContext context, DateTime day, int total) {
-    final date = DateFormat('d').format(day);
-    final weekday = DateFormat('EEEE', 'id_ID').format(day);
+class _DayCard extends ConsumerWidget {
+  final DateTime day;
+  final List<Transaction> transactions;
+
+  const _DayCard({required this.day, required this.transactions});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final dayName = DateFormat('EEEE', 'id_ID').format(day);
+    final dateNum = DateFormat('d').format(day);
+
+    int totalIncome = 0;
+    int totalExpense = 0;
+    for (final tx in transactions) {
+      if (tx.type == TransactionType.income) totalIncome += tx.amount;
+      if (tx.type == TransactionType.expense) totalExpense += tx.amount;
+    }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: context.colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              date,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: context.colors.onSurfaceVariant,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 20, 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      dateNum,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      dayName,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (totalIncome > 0) ...[
+                            Icon(
+                              Icons.arrow_upward_rounded,
+                              size: 12,
+                              color: context.semantic.income,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              formatRupiah(totalIncome),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                                color: context.semantic.income,
+                                fontWeight: FontWeight.w600,
+                                fontFeatures: [FontFeature.tabularFigures()],
+                              ),
+                            ),
+                          ],
+                          if (totalIncome > 0 && totalExpense > 0)
+                            const SizedBox(width: 8),
+                          if (totalExpense > 0) ...[
+                            Icon(
+                              Icons.arrow_downward_rounded,
+                              size: 12,
+                              color: context.semantic.expense,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              formatRupiah(totalExpense),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                                color: context.semantic.expense,
+                                fontWeight: FontWeight.w600,
+                                fontFeatures: [FontFeature.tabularFigures()],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              weekday,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-                color: context.colors.onSurfaceVariant,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Divider(
+                height: 1,
+                color: cs.outlineVariant.withValues(alpha: 0.3),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Text(
-              formatRupiah(total),
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: total >= 0
-                    ? context.semantic.income
-                    : context.semantic.expense,
-                fontFeatures: const [FontFeature.tabularFigures()],
+            ...transactions.map(
+              (tx) => _TransactionRow(transaction: tx),
+            ),
+            const SizedBox(height: 4),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TransactionRow extends ConsumerWidget {
+  final Transaction transaction;
+
+  const _TransactionRow({required this.transaction});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isIncome = transaction.type == TransactionType.income;
+    final isExpense = transaction.type == TransactionType.expense;
+    final isTransfer = transaction.type == TransactionType.transfer;
+
+    final categories = ref.watch(categoryProvider);
+    final accounts = ref.watch(accountProvider);
+
+    final category = transaction.categoryId != null
+        ? categories.firstWhereOrNull(
+            (c) => c.id == transaction.categoryId,
+          )
+        : null;
+
+    String getAccountName(String id) {
+      return accounts.firstWhereOrNull((a) => a.id == id)?.name ?? '';
+    }
+
+    final title = isTransfer ? 'Transfer' : category?.name ?? 'Transaction';
+    final subtitle = isTransfer
+        ? '${getAccountName(transaction.fromAccountId)} → ${getAccountName(transaction.toAccountId!)}'
+        : getAccountName(transaction.fromAccountId);
+    final sign = isIncome
+        ? '+'
+        : isExpense
+        ? '-'
+        : '';
+    final amountColor = isIncome
+        ? context.semantic.income
+        : isExpense
+        ? context.semantic.expense
+        : context.colors.onSurface;
+    final cs = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TransactionFormPage(transaction: transaction),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+        child: Row(
+          children: [
+            Icon(
+              isTransfer ? Icons.swap_horiz : category?.icon ?? Icons.receipt,
+              size: 20,
+              color: isTransfer ? cs.onSurface : amountColor,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '$sign${formatRupiah(transaction.amount)}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          // color: amountColor,
+                          color: cs.onSurface,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: cs.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

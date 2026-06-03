@@ -140,7 +140,8 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
               ),
             ),
           ),
-          Spacer(),
+          // Spacer(),
+          SizedBox(height: 2),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             child: keyboardOpen
@@ -150,6 +151,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     onClear: _clearAmount,
                   ),
           ),
+          // SizedBox(height: 12),
         ],
       ),
     );
@@ -570,7 +572,10 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
   void _error(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message),duration: Duration(seconds: 1),),
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 1),
+      ),
     );
   }
 

@@ -81,7 +81,7 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
           /// NAME
           TextField(
             controller: _nameController,
-            maxLength: 10,
+            maxLength: 20,
             decoration: const InputDecoration(
               labelText: 'Name',
             ),
@@ -164,11 +164,11 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
-          itemCount: _isIncome? incomeIcons.length : categoryIcons.length,
+          itemCount: _isIncome ? incomeIcons.length : categoryIcons.length,
           // itemCount: categoryIcons.length,
           itemBuilder: (context, index) {
             // final icon = categoryIcons[index];
-            final icon = _isIncome? incomeIcons[index] : categoryIcons[index];
+            final icon = _isIncome ? incomeIcons[index] : categoryIcons[index];
             return InkWell(
               onTap: () {
                 setState(() => _selectedIcon = icon);
