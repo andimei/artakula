@@ -1,6 +1,7 @@
 import 'package:artakula/features/overviews/presentation/widgets/account_card.dart';
 import 'package:artakula/features/overviews/presentation/widgets/budget_overview_card.dart';
 import 'package:artakula/features/overviews/presentation/widgets/cashflow_trend.dart';
+import 'package:artakula/features/overviews/presentation/widgets/category_summary_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,6 +27,8 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
           CashFlowTrendCard(),
           SizedBox(height: 16),
           BudgetOverviewCard(),
+          SizedBox(height: 16),
+          CategorySummaryCard(),
         ],
       ),
     );
